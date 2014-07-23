@@ -20,9 +20,9 @@ class StatelessService {
     private static String hmacSha256(String data) {
      try {
         Mac mac = Mac.getInstance("HmacSHA256")
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256")
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256")
         mac.init(secretKeySpec)
-        byte[] digest = mac.doFinal(data.getBytes())
+        byte[] digest = mac.doFinal(data.getBytes("UTF-8"))
         return digest.encodeBase64().toString()
        } catch (InvalidKeyException e) {
         throw new RuntimeException("Invalid key exception while converting to HMac SHA256")
@@ -33,7 +33,7 @@ class StatelessService {
         def jsonString = new JsonBuilder(data).toString()
         def hash = hmacSha256(jsonString)
         def extendedData = jsonString+"_"+hash
-        return (extendedData as String).getBytes().encodeBase64()
+        return (extendedData as String).getBytes("UTF-8").encodeBase64()
     }
 
 
@@ -51,7 +51,7 @@ class StatelessService {
             }
         } catch (Exception e){
             //do nothing
-            e.printStackTrace()
+            //e.printStackTrace()
         }
         return [:]
 
