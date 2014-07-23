@@ -1,4 +1,4 @@
-package net.kaleidos.grails.plugin.springsecurity.stateless
+package net.kaleidos.grails.plugin.security.stateless
 
 import grails.util.Holders as CH
 
@@ -13,7 +13,7 @@ import groovy.json.JsonSlurper
 class StatelessService {
 
     private static String getSecret(){
-        return CH.config.grails.plugin.springsecurity.stateless.secretKey
+        return CH.config.grails.plugin.security.stateless.secretKey
     }
 
 

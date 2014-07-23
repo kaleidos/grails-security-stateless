@@ -1,4 +1,4 @@
-package net.kaleidos.grails.plugin.springsecurity.stateless
+package net.kaleidos.grails.plugin.security.stateless
 
 import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
@@ -15,7 +15,7 @@ import grails.util.Holders as CH
 class StatelessServiceSpec extends Specification {
 
     def setup() {
-        CH.config.grails.plugin.springsecurity.stateless.secretKey = "secret"
+        CH.config.grails.plugin.security.stateless.secretKey = "secret"
     }
 
     void "generate a key"() {
