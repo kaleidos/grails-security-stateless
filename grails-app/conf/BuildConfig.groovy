@@ -24,7 +24,8 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile ':spring-security-core:2.0-RC3'
+        //compile ":cache-ehcache:1.0.1"
+        //compile ':spring-security-core:2.0-RC3'
         build ":rest-client-builder:1.0.3", { export = false }
     }
 }
