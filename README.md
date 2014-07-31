@@ -13,6 +13,8 @@ grails-security-stateless
 Standalone
 ----------
 
+#### Configuration
+
 The plugin can be used on a pure stand alone mode. For this, you only need to set two parameters on Config.groovy:
 
 ```
@@ -20,7 +22,10 @@ grails.plugin.security.stateless.secretKey = "mysupersecretkey"
 grails.plugin.springsecurity.active = false
 ```
 
-Then, you can mark any controller or method with @SecuredStateless, and the plugin will keep the authentication for you, adding to the request an attribute 'securityStatelessMap' with the user data.
+
+#### Secure controllers and methods
+
+You can mark any controller or method with @SecuredStateless, and the plugin will keep the authentication for you, adding to the request an attribute 'securityStatelessMap' with the user data.
 
 ```
 import net.kaleidos.grails.plugin.security.stateless.annotation.SecuredStateless
