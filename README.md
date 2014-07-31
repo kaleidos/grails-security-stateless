@@ -34,7 +34,7 @@ class HelloController {
 ```
 
 
-### Login
+#### Login
 
 On standalone mode, you have to code your own login controller. This controller should validate the credentials as you need, and return a security-stateless token, using the method statelessService.generateToken(String username).
 
