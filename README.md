@@ -1,7 +1,7 @@
 grails-security-stateless
 =========================
 
-  Grails plugin to implement *relly* stateless authentication. It is based on the procedure described at http://www.kaleidos.net/blog/295/stateless-authentication-with-api-rest/
+  Grails plugin to implement *really* stateless authentication. It is based on the procedure described at http://www.kaleidos.net/blog/295/stateless-authentication-with-api-rest/
   
    Long story short: we do not keep tokens. We generate self-contained tokens, sign it, and give it to the client. The client then send this token on every request. As the token is signed, the client can't mess with it. And as the token is self-contained, we don't need to keep it, only verify it.
    
