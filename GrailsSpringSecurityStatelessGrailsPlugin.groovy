@@ -39,19 +39,22 @@ class GrailsSpringSecurityStatelessGrailsPlugin {
 
         println '\nConfiguring Spring Security Stateless ...'
 
-        statelessAuthenticationFilter(StatelessAuthenticationFilter) {
-            authenticationFailureHandler = ref('statelessAuthenticationFailureHandler')
-            statelessAuthenticationProvider = ref('statelessAuthenticationProvider')
-            active = CH.config.grails.plugin.security.stateless.springsecurity.integration?:false
-        }
+        if (CH.config.grails.plugin.security.stateless.springsecurity.integration) {
+
+            statelessAuthenticationFilter(StatelessAuthenticationFilter) {
+                authenticationFailureHandler = ref('statelessAuthenticationFailureHandler')
+                statelessAuthenticationProvider = ref('statelessAuthenticationProvider')
+                active = true
+            }
 
 
-        statelessAuthenticationProvider(StatelessAuthenticationProvider) {
-            userDetailsService = ref('userDetailsService')
-        }
+            statelessAuthenticationProvider(StatelessAuthenticationProvider) {
+                userDetailsService = ref('userDetailsService')
+            }
 
 
-        statelessAuthenticationFailureHandler(StatelessAuthenticationFailureHandler) {
+            statelessAuthenticationFailureHandler(StatelessAuthenticationFailureHandler) {
+            }
         }
 
 
