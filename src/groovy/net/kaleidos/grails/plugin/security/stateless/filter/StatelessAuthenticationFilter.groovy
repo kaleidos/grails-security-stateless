@@ -47,6 +47,7 @@ class StatelessAuthenticationFilter extends GenericFilterBean {
 
                             log.debug "Token authenticated."
                             log.debug "Authentication result: ${authenticationResult}"
+                            servletRequest.securityStatelessMap = authenticationResult.securityStatelessMap
                             SecurityContextHolder.context.setAuthentication(authenticationResult)
                             chain.doFilter(request, response)
                     }

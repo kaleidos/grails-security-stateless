@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority
 
 class StatelessAuthenticationToken extends UsernamePasswordAuthenticationToken {
     String tokenValue
+    Map securityStatelessMap
 
     StatelessAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities, String tokenValue) {
         super(principal, credentials, authorities)

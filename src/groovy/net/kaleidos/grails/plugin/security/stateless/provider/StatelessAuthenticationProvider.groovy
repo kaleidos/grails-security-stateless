@@ -35,12 +35,13 @@ public class StatelessAuthenticationProvider implements AuthenticationProvider {
             log.debug "Trying to validate token ${authenticationRequest.tokenValue}"
 
 
-            def map = StatelessService.validateAndExtractToken(authenticationRequest.tokenValue)
+            def securityStatelessMap = StatelessService.validateAndExtractToken(authenticationRequest.tokenValue)
 
-            if (map) {
-                def userDetails = userDetailsService.loadUserByUsername(map.username, true)
+            if (securityStatelessMap) {
+                def userDetails = userDetailsService.loadUserByUsername(securityStatelessMap.username, true)
                 log.debug "Authentication result: ${authenticationResult}"
                 authenticationResult = new StatelessAuthenticationToken(userDetails, userDetails.password, userDetails.authorities, authenticationRequest.tokenValue)
+                authenticationResult.securityStatelessMap = securityStatelessMap
             } else {
                 throw new BadCredentialsException("Token invalid")
             }
