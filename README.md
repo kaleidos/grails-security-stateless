@@ -34,6 +34,28 @@ class HelloController {
 ```
 
 
+### Login
+
+On standalone mode, you have to code your own login controller. This controller should validate the credentials as you need, and return a security-stateless token, using the method statelessService.generateToken(String username).
+
+A silly example of login controller could be:
+
+```
+import grails.converters.JSON
+
+class LoginController {
+    def statelessService
+
+    def index() {
+        if (params.password == '12345'){
+            render (['token': statelessService.generateToken(params.user)] as JSON)
+        } else {
+            render(status: 401, text: '')
+        }
+    }
+}
+```
+
 Integrated with springsecurity
 ------------------------------
 
