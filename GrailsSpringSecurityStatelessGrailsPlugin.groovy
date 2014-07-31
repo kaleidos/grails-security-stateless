@@ -1,3 +1,11 @@
+import grails.plugin.springsecurity.SpringSecurityUtils
+import net.kaleidos.grails.plugin.security.stateless.filter.StatelessAuthenticationFilter
+import net.kaleidos.grails.plugin.security.stateless.provider.StatelessAuthenticationProvider
+import net.kaleidos.grails.plugin.security.stateless.handler.StatelessAuthenticationFailureHandler
+import grails.plugin.springsecurity.SecurityFilterPosition
+import grails.util.Holders as CH
+
+
 class GrailsSpringSecurityStatelessGrailsPlugin {
     def version = "0.1"
     def grailsVersion = "2.2 > *"
@@ -25,6 +33,31 @@ class GrailsSpringSecurityStatelessGrailsPlugin {
 
     // Online location of the plugin's browseable source code.
     def scm = [ url: "https://github.com/pabloalba/grails-spring-security-stateless" ]
+
+
+    def doWithSpring = {
+
+        println '\nConfiguring Spring Security Stateless ...'
+
+        statelessAuthenticationFilter(StatelessAuthenticationFilter) {
+            authenticationFailureHandler = ref('statelessAuthenticationFailureHandler')
+            statelessAuthenticationProvider = ref('statelessAuthenticationProvider')
+            active = CH.config.grails.plugin.security.stateless.springsecurity.integration?:false
+        }
+
+
+        statelessAuthenticationProvider(StatelessAuthenticationProvider) {
+            userDetailsService = ref('userDetailsService')
+        }
+
+
+        statelessAuthenticationFailureHandler(StatelessAuthenticationFailureHandler) {
+        }
+
+
+
+
+    }
 
 
 }

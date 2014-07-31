@@ -11,6 +11,7 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
 class StatelessService {
+    private static String BEARER = "Bearer "
 
     private static String getSecret(){
         return CH.config.grails.plugin.security.stateless.secretKey
@@ -29,16 +30,21 @@ class StatelessService {
       }
     }
 
-    static String generateToken(Map data){
+    static String generateToken(String userName){
+        def data = [username:userName]
         def jsonString = new JsonBuilder(data).toString()
         def hash = hmacSha256(jsonString)
         def extendedData = jsonString+"_"+hash
-        return (extendedData as String).getBytes("UTF-8").encodeBase64()
+        return BEARER + (extendedData as String).getBytes("UTF-8").encodeBase64()
     }
 
 
     static Map validateAndExtractToken(String token){
         try {
+            if (token.startsWith(BEARER)){
+                token = token.substring(BEARER.size())
+            }
+
             String data = new String((token.decodeBase64()))
             def split = data.split("_")
             def slurper = new JsonSlurper()
@@ -49,6 +55,7 @@ class StatelessService {
             if (hash1 == hash2) {
                 return slurper.parseText(split[0])
             }
+
         } catch (Exception e){
             //do nothing
             //e.printStackTrace()

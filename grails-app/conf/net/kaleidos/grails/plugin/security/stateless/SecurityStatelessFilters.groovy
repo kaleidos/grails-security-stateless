@@ -9,13 +9,16 @@ class SecurityStatelessFilters {
 
     private boolean isSecuredStateless(String controllerName, String actionName, grailsApplication){
         def controller = grailsApplication.controllerClasses.find{controllerName == WordUtils.uncapitalize(it.name)}
-        def clazz = controller.clazz
-        if (clazz.isAnnotationPresent(SecuredStateless.class)) {
-            return true
-        } else {
-            def method = clazz.methods.find{actionName == it.name}
-            return method.isAnnotationPresent(SecuredStateless.class)
+        if (controller) {
+            def clazz = controller.clazz
+            if (clazz.isAnnotationPresent(SecuredStateless.class)) {
+                return true
+            } else {
+                def method = clazz.methods.find{actionName == it.name}
+                return method.isAnnotationPresent(SecuredStateless.class)
+            }
         }
+        return false
     }
 
 
