@@ -7,7 +7,7 @@ import grails.plugin.springsecurity.SecurityFilterPosition
 import grails.util.Holders as CH
 
 
-class GrailsSpringSecurityStatelessGrailsPlugin {
+class SecurityStatelessGrailsPlugin {
     def version = "0.1"
     def grailsVersion = "2.2 > *"
     // resources that are excluded from plugin packaging
@@ -20,7 +20,7 @@ class GrailsSpringSecurityStatelessGrailsPlugin {
     def author = "Pablo Alba"
     def authorEmail = "pablo.alba@kaleidos.net"
     def description = '''\
- Grails plugin to implement stateless authentication using Spring Security.
+ Grails plugin to implement stateless authentication, with optional use of using Spring Security.
 '''
 
     // URL to the plugin's documentation
