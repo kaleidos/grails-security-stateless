@@ -62,9 +62,9 @@ class SecurityStatelessGrailsPlugin {
                 authenticationManager = ref('authenticationManager')
                 authenticationDetailsSource = ref('authenticationDetailsSource')
                 endpointUrl = CH.config.grails.plugin.security.stateless.springsecurity.login.endpointUrl
-                usernameField = CH.config.grails.plugin.security.stateless.springsecurity.login.usernameField
-                passwordField = CH.config.grails.plugin.security.stateless.springsecurity.login.passwordField
-                active = true
+                usernameField = CH.config.grails.plugin.security.stateless.springsecurity.login.usernameField?:"user"
+                passwordField = CH.config.grails.plugin.security.stateless.springsecurity.login.passwordField?:"password"
+                active = CH.config.grails.plugin.security.stateless.springsecurity.login.active?:false
             }
 
 

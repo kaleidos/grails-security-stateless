@@ -66,7 +66,7 @@ class StatelessLoginFilter extends GenericFilterBean {
              //Request must contain parameters
             if (!principal || !credentials) {
                 log.debug "Username and/or password parameters are missing. Setting status to ${HttpServletResponse.SC_BAD_REQUEST}"
-                httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+                httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST) //400
                 return
             }
 
@@ -91,7 +91,7 @@ class StatelessLoginFilter extends GenericFilterBean {
 
             } catch (AuthenticationException ae) {
                 log.debug "Authentication failed: ${ae.message}"
-                httpServletResponse.status = 401
+                httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED) //401
                 return
             }
 
