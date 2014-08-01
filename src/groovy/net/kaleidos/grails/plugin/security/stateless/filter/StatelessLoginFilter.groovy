@@ -85,7 +85,8 @@ class StatelessLoginFilter extends GenericFilterBean {
                     String tokenValue = StatelessService.generateToken(principal)
                     log.debug "Generated token: ${tokenValue}"
 
-                    httpServletResponse << [token: tokenValue] as JSON
+                    httpServletResponse.setContentType("application/json");
+                    httpServletResponse << (["token": "$tokenValue"] as JSON).toString()
                     return
                 }
 
