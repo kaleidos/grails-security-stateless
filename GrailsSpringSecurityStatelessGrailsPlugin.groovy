@@ -1,5 +1,6 @@
 import grails.plugin.springsecurity.SpringSecurityUtils
 import net.kaleidos.grails.plugin.security.stateless.filter.StatelessAuthenticationFilter
+import net.kaleidos.grails.plugin.security.stateless.filter.StatelessLoginFilter
 import net.kaleidos.grails.plugin.security.stateless.provider.StatelessAuthenticationProvider
 import net.kaleidos.grails.plugin.security.stateless.handler.StatelessAuthenticationFailureHandler
 import grails.plugin.springsecurity.SecurityFilterPosition
@@ -55,6 +56,18 @@ class GrailsSpringSecurityStatelessGrailsPlugin {
 
             statelessAuthenticationFailureHandler(StatelessAuthenticationFailureHandler) {
             }
+
+
+            statelessLoginFilter(StatelessLoginFilter) {
+                authenticationManager = ref('authenticationManager')
+                authenticationDetailsSource = ref('authenticationDetailsSource')
+                endpointUrl = CH.config.grails.plugin.security.stateless.springsecurity.login.endpointUrl
+                usernameField = CH.config.grails.plugin.security.stateless.springsecurity.login.usernameField
+                passwordField = CH.config.grails.plugin.security.stateless.springsecurity.login.passwordField
+                active = true
+            }
+
+
         }
 
 
