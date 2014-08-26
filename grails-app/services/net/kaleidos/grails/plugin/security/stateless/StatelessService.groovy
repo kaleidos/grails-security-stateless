@@ -32,6 +32,10 @@ class StatelessService {
 
     static String generateToken(String userName){
         def data = [username:userName]
+        generateToken(data)
+    }
+
+    static String generateToken(Map data){
         def jsonString = new JsonBuilder(data).toString()
         def hash = hmacSha256(jsonString)
         def extendedData = jsonString+"_"+hash

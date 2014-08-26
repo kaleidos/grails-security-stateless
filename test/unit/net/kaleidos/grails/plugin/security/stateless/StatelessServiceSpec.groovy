@@ -24,7 +24,7 @@ class StatelessServiceSpec extends Specification {
         when:
             def token = StatelessService.generateToken(data)
         then:
-            token == "eyJpZCI6IjEiLCJ1c2VyIjoicGFsYmEiLCJleHBpcmF0aW9uRGF0ZSI6IjAxLzAxLzIwMTUifV8vd3k4US9rSFlGdXYrWnJvb1AvWUliblpQOVVGMzFtMkdLSk4weFhmSjFrPQ=="
+            token == "Bearer eyJpZCI6IjEiLCJ1c2VyIjoicGFsYmEiLCJleHBpcmF0aW9uRGF0ZSI6IjAxLzAxLzIwMTUifV8vd3k4US9rSFlGdXYrWnJvb1AvWUliblpQOVVGMzFtMkdLSk4weFhmSjFrPQ=="
     }
 
 
