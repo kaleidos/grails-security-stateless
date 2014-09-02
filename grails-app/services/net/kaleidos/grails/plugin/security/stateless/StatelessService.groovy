@@ -35,7 +35,7 @@ class StatelessService {
         def jsonString = new JsonBuilder(data).toString()
         def hash = hmacSha256(jsonString)
         def extendedData = jsonString+"_"+hash
-        return BEARER + (extendedData as String).getBytes("UTF-8").encodeBase64()
+        return (extendedData as String).getBytes("UTF-8").encodeBase64()
     }
 
 
