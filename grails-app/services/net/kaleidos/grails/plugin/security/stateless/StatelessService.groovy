@@ -30,8 +30,8 @@ class StatelessService {
       }
     }
 
-    static String generateToken(String userName){
-        def data = [username:userName]
+    static String generateToken(String userName, Map<String,String> extraData=[:]){
+        def data = [username:userName, extradata: extraData]
         def jsonString = new JsonBuilder(data).toString()
         def hash = hmacSha256(jsonString)
         def extendedData = jsonString+"_"+hash
