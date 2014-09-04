@@ -17,6 +17,10 @@ class StatelessService {
         return CH.config.grails.plugin.security.stateless.secretKey
     }
 
+    private static boolean isCypher(){
+        return CH.config.grails.plugin.security.stateless.cypher?true:false
+    }
+
 
     private static String hmacSha256(String data) {
      try {
@@ -32,9 +36,14 @@ class StatelessService {
 
     static String generateToken(String userName, Map<String,String> extraData=[:]){
         def data = [username:userName, extradata: extraData]
-        def jsonString = new JsonBuilder(data).toString()
-        def hash = hmacSha256(jsonString)
-        def extendedData = jsonString+"_"+hash
+        def text = new JsonBuilder(data).toString()
+
+        if (isCypher()){
+            text = CryptoService.encrypt(text)
+        }
+
+        def hash = hmacSha256(text)
+        def extendedData = text+"_"+hash
         return (extendedData as String).getBytes("UTF-8").encodeBase64()
     }
 
@@ -46,14 +55,19 @@ class StatelessService {
             }
 
             String data = new String((token.decodeBase64()))
+
             def split = data.split("_")
+
             def slurper = new JsonSlurper()
-            def json = slurper.parseText(split[0])
             def hash1 = split[1]
             def hash2 = hmacSha256(split[0])
 
             if (hash1 == hash2) {
-                return slurper.parseText(split[0])
+                def text = split[0]
+                if (isCypher()){
+                    text = CryptoService.decrypt(text)
+                }
+                return slurper.parseText(text)
             }
 
         } catch (Exception e){
