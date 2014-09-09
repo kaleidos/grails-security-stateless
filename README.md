@@ -67,14 +67,17 @@ Integrated with springsecurity
 
 #### Configuration
 
-The plugin can be used along with springsecurity. In order to do so, you need to set several parameters on Config.groovy, including a chainmap for the urls on which you want to use the stateless authentication
+The plugin can be used along with springsecurity. In order to do so, you need to set several parameters on Config.groovy:
 
 ```
 grails.plugin.security.stateless.secretKey = "mysupersecretkey"
 grails.plugin.security.stateless.springsecurity.integration = true
-grails.plugin.springsecurity.filterChain.chainMap = [
-    '/hello/*': 'statelessAuthenticationFilter'
-]
+```
+
+Also, you need to add the statelessAuthenticationFilter to the list of filters of your application adding this line to BootStrap.groovy
+
+```
+SpringSecurityUtils.clientRegisterFilter('statelessAuthenticationFilter', SecurityFilterPosition.SECURITY_CONTEXT_FILTER.order + 10)
 ```
 
 
@@ -112,7 +115,6 @@ You can code your own login controller. But the plugin offers you a default meth
 grails.plugin.security.stateless.secretKey = "mysupersecretkey" //as allways
 grails.plugin.security.stateless.springsecurity.integration = true
 grails.plugin.springsecurity.filterChain.chainMap = [
-    '/hello/*': 'statelessAuthenticationFilter',
     '/stateless/login': 'statelessLoginFilter'
 ]
 grails.plugin.security.stateless.springsecurity.login.active = true
