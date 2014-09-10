@@ -37,6 +37,8 @@ public class StatelessAuthenticationProvider implements AuthenticationProvider {
 
             def securityStatelessMap = StatelessService.validateAndExtractToken(authenticationRequest.tokenValue)
 
+            println securityStatelessMap
+
             if (securityStatelessMap) {
                 def userDetails = userDetailsService.loadUserByUsername(securityStatelessMap.username, true)
                 log.debug "Authentication result: ${authenticationResult}"
