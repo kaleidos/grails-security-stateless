@@ -48,6 +48,7 @@ class StatelessService {
     }
 
 
+
     static Map validateAndExtractToken(String token){
         try {
             if (token.startsWith(BEARER)){
