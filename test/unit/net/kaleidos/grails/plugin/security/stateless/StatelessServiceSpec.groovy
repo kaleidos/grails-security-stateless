@@ -18,25 +18,78 @@ class StatelessServiceSpec extends Specification {
         CH.config.grails.plugin.security.stateless.secretKey = "secret"
     }
 
-    void "generate a key"() {
+    void "generate a token"() {
         setup:
-            def data = [id:'1', user:'palba', expirationDate:'01/01/2015']
+            def username = 'palba'
         when:
-            def token = StatelessService.generateToken(data)
+            def token = StatelessService.generateToken(username)
         then:
-            token == "Bearer eyJpZCI6IjEiLCJ1c2VyIjoicGFsYmEiLCJleHBpcmF0aW9uRGF0ZSI6IjAxLzAxLzIwMTUifV8vd3k4US9rSFlGdXYrWnJvb1AvWUliblpQOVVGMzFtMkdLSk4weFhmSjFrPQ=="
+            token == "eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7fX1fenBMTklBa0o0MXpNVVZnUm9kVGlta1FueEM3U0ZVMGZkaGJUaUZWOFpPST0="
     }
 
 
-    void "validate a key"() {
+    void "validate a token"() {
         setup:
-            def token = "eyJpZCI6IjEiLCJ1c2VyIjoicGFsYmEiLCJleHBpcmF0aW9uRGF0ZSI6IjAxLzAxLzIwMTUifV8vd3k4US9rSFlGdXYrWnJvb1AvWUliblpQOVVGMzFtMkdLSk4weFhmSjFrPQ=="
+            def token = "Bearer eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7fX1fenBMTklBa0o0MXpNVVZnUm9kVGlta1FueEM3U0ZVMGZkaGJUaUZWOFpPST0="
         when:
             def data = StatelessService.validateAndExtractToken(token)
         then:
-            data.id == '1'
-            data.user == 'palba'
-            data.expirationDate == '01/01/2015'
+            data.username == 'palba'
+            data.extradata == [:]
+    }
+
+    void "generate a token with extra data"() {
+        setup:
+            def username = 'palba'
+            def extraData = ['token1':'AAA', 'token2':'BBB']
+        when:
+            def token = StatelessService.generateToken(username, extraData)
+        then:
+            token == "eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7InRva2VuMSI6IkFBQSIsInRva2VuMiI6IkJCQiJ9fV81RDRFUzFLSzZlRHhZdDV1em5vTThKR0pzczlBMDE0bEprMS8rV1R4TVpjPQ=="
+    }
+
+    void "validate a token with extra data"() {
+        setup:
+            def token = "Bearer eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7InRva2VuMSI6IkFBQSIsInRva2VuMiI6IkJCQiJ9fV81RDRFUzFLSzZlRHhZdDV1em5vTThKR0pzczlBMDE0bEprMS8rV1R4TVpjPQ=="
+        when:
+            def data = StatelessService.validateAndExtractToken(token)
+        then:
+            data.username == 'palba'
+            data.extradata['token1'] == 'AAA'
+            data.extradata['token2'] == 'BBB'
+    }
+
+    void "generate an encrypted token"() {
+        setup:
+            CH.config.grails.plugin.security.stateless.cypher = true
+            def username = 'palba'
+        when:
+            def token = StatelessService.generateToken(username)
+        then:
+            token != "eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7fX1fenBMTklBa0o0MXpNVVZnUm9kVGlta1FueEM3U0ZVMGZkaGJUaUZWOFpPST0="
+    }
+
+    void "validate an encripted token"() {
+        setup:
+            CH.config.grails.plugin.security.stateless.cypher = true
+            def token = "Bearer OWY3MTU0YTZmNjI2Zjc3YzA1YzkyZGI4MDFiMDVmYzNkMTRiMjRlOTIyNWZjMDQ4ZmIxYjVmZDQ4ZTdjNWQ4MzkyMGNmM2E0MjE0ZDI1NjFjMWMzOWUyODljM2FjZmYxNTdjNWExMTAwMjVjMTRmNTJlODZhNjYxYjg5NGJkYTRlMWU5NzdkZjE2MTMwN2JiZDM2OTYwNjcwYTBkMDYxYl93NGxJbnJ0V2R2Qjk3WEhpYWhTRW5OeVpBYmJTb2UwU3hTYURkMHFxVW5nPQ=="
+        when:
+            def data = StatelessService.validateAndExtractToken(token)
+        then:
+            data.username == 'palba'
+            data.extradata == [:]
+    }
+
+    void "generate and validate an encrypted token"() {
+        setup:
+            CH.config.grails.plugin.security.stateless.cypher = true
+            def username = 'palba'
+        when:
+            def token = StatelessService.generateToken(username)
+            def data = StatelessService.validateAndExtractToken(token)
+        then:
+            data.username == 'palba'
+            data.extradata == [:]
     }
 
 

@@ -17,7 +17,7 @@ Standalone
 
 The plugin can be used on a pure stand alone mode. For this, you only need to set two parameters on Config.groovy:
 
-```
+```groovy
 grails.plugin.security.stateless.secretKey = "mysupersecretkey"
 grails.plugin.springsecurity.active = false
 ```
@@ -27,7 +27,7 @@ grails.plugin.springsecurity.active = false
 
 You can mark any controller or method with @SecuredStateless, and the plugin will keep the authentication for you, adding to the request an attribute 'securityStatelessMap' with the user data.
 
-```
+```groovy
 import net.kaleidos.grails.plugin.security.stateless.annotation.SecuredStateless
 
 class HelloController {
@@ -45,7 +45,7 @@ On standalone mode, you have to code your own login controller. This controller 
 
 A silly example of login controller could be:
 
-```
+```groovy
 import grails.converters.JSON
 
 class LoginController {
@@ -67,14 +67,17 @@ Integrated with springsecurity
 
 #### Configuration
 
-The plugin can be used along with springsecurity. In order to do so, you need to set several parameters on Config.groovy, including a chainmap for the urls on which you want to use the stateless authentication
+The plugin can be used along with springsecurity. In order to do so, you need to set several parameters on Config.groovy:
 
-```
+```groovy
 grails.plugin.security.stateless.secretKey = "mysupersecretkey"
 grails.plugin.security.stateless.springsecurity.integration = true
-grails.plugin.springsecurity.filterChain.chainMap = [
-    '/hello/*': 'statelessAuthenticationFilter'
-]
+```
+
+Also, you need to add the statelessAuthenticationFilter to the list of filters of your application adding this line to BootStrap.groovy
+
+```
+SpringSecurityUtils.clientRegisterFilter('statelessAuthenticationFilter', SecurityFilterPosition.SECURITY_CONTEXT_FILTER.order + 10)
 ```
 
 
@@ -83,7 +86,7 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 Any method controlled by the defined chainMap is secured. And inside it, you can access both springSecurityService.currentUser and request.securityStatelessMap.
 
 
-```
+```groovy
 import net.kaleidos.grails.plugin.security.stateless.annotation.SecuredStateless
 import grails.plugin.springsecurity.annotation.Secured
 
@@ -108,11 +111,10 @@ You can code your own login controller. But the plugin offers you a default meth
 
 
 
-```
+```groovy
 grails.plugin.security.stateless.secretKey = "mysupersecretkey" //as allways
 grails.plugin.security.stateless.springsecurity.integration = true
 grails.plugin.springsecurity.filterChain.chainMap = [
-    '/hello/*': 'statelessAuthenticationFilter',
     '/stateless/login': 'statelessLoginFilter'
 ]
 grails.plugin.security.stateless.springsecurity.login.active = true
@@ -125,6 +127,6 @@ grails.plugin.security.stateless.springsecurity.login.passwordField = "password"
 
 The login will return 400 (BAD_REQUEST) if there isn't username or password, 401 (UNAUTHORIZED) for wrong username/password, or 200 (OK) for valid username/password. On 200, also return a JSON body with the token:
 
-```
+```groovy
 ["token":"Bearer eyJ1c2VybmFtZSI6InBhbGJhIn1fMUkwL3FIblpoQ2JYek5hVVVxSUw4TjAvNmk1Y3Qwb0IvamhQVFdUWGpNTT0="]
 ```

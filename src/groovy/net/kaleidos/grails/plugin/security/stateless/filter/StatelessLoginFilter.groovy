@@ -41,23 +41,24 @@ class StatelessLoginFilter extends GenericFilterBean {
         HttpServletRequest httpServletRequest = request as HttpServletRequest
         HttpServletResponse httpServletResponse = response as HttpServletResponse
 
-        if (active) {
+        def actualUri =  httpServletRequest.requestURI - httpServletRequest.contextPath
 
-            def actualUri =  httpServletRequest.requestURI - httpServletRequest.contextPath
+        logger.debug "Actual URI is ${actualUri}; endpoint URL is ${endpointUrl}"
 
-            logger.debug "Actual URI is ${actualUri}; endpoint URL is ${endpointUrl}"
+        //Only apply filter to the configured URL
+        if (active && (actualUri == endpointUrl)) {
 
-            //Only apply filter to the configured URL
-            if (actualUri == endpointUrl) {
-                log.debug "Applying authentication filter to this request"
 
-                //Only POST is supported
-                if (httpServletRequest.method != 'POST') {
-                    log.debug "${httpServletRequest.method} HTTP method is not supported. Setting status to ${HttpServletResponse.SC_METHOD_NOT_ALLOWED}"
-                    httpServletResponse.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
-                    return
-                }
+
+            log.debug "Applying authentication filter to this request"
+
+            //Only POST is supported
+            if (httpServletRequest.method != 'POST') {
+                log.debug "${httpServletRequest.method} HTTP method is not supported. Setting status to ${HttpServletResponse.SC_METHOD_NOT_ALLOWED}"
+                httpServletResponse.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED)
+                return
             }
+
 
             String principal = request.getParameter(usernameField)
             String credentials = request.getParameter(passwordField)
@@ -95,6 +96,7 @@ class StatelessLoginFilter extends GenericFilterBean {
                 httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED) //401
                 return
             }
+
 
         } else {
             chain.doFilter(request, response)
