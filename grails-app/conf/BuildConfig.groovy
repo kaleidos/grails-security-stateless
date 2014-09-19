@@ -22,10 +22,15 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.27'
         compile "net.sf.ehcache:ehcache-core:2.4.8"
+
     }
 
     plugins {
         compile ":spring-security-core:2.0-RC4"
-        build ":rest-client-builder:1.0.3", { export = false }
+        build ':release:3.0.1', ':rest-client-builder:2.0.3', {
+           export = false
+        }
     }
+
+
 }

@@ -8,7 +8,7 @@ import grails.util.Holders as CH
 
 
 class SecurityStatelessGrailsPlugin {
-    def version = "0.0.1"
+    def version = "0.0.1-SNAPSHOT"
     def grailsVersion = "2.2 > *"
 
     def title = "Grails Spring Security Stateless Plugin"
