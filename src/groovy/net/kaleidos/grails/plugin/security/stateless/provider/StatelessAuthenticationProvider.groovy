@@ -1,63 +1,52 @@
 package net.kaleidos.grails.plugin.security.stateless.provider
 
-import org.springframework.security.authentication.AuthenticationProvider
-import org.springframework.security.core.Authentication
-import net.kaleidos.grails.plugin.security.stateless.token.StatelessAuthenticationToken
-import grails.plugin.springsecurity.userdetails.GrailsUser
-import org.springframework.security.core.userdetails.UserDetailsChecker
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.core.authority.GrantedAuthorityImpl
-import org.springframework.security.core.AuthenticationException
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.util.Assert
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.GrantedAuthority
-import grails.plugin.springsecurity.SpringSecurityUtils
-
+import grails.plugin.springsecurity.userdetails.GrailsUserDetailsService
+import groovy.transform.CompileStatic
 import net.kaleidos.grails.plugin.security.stateless.StatelessService
+import net.kaleidos.grails.plugin.security.stateless.token.StatelessAuthenticationToken
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.util.Assert
 
+@CompileStatic
+class StatelessAuthenticationProvider implements AuthenticationProvider {
 
+    protected final Logger log = LoggerFactory.getLogger(getClass().name)
 
+    GrailsUserDetailsService userDetailsService
 
-
-public class StatelessAuthenticationProvider implements AuthenticationProvider {
-    def userDetailsService
-
-
-    Authentication authenticate(Authentication authentication) throws AuthenticationException{
+    Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         Assert.isInstanceOf(StatelessAuthenticationToken, authentication, "Only StatelessAuthenticationToken is supported")
-        StatelessAuthenticationToken authenticationRequest = authentication
+        StatelessAuthenticationToken authenticationRequest = (StatelessAuthenticationToken)authentication
         StatelessAuthenticationToken authenticationResult = new StatelessAuthenticationToken(authenticationRequest.tokenValue)
 
-        if (authenticationRequest.tokenValue) {
-            log.debug "Trying to validate token ${authenticationRequest.tokenValue}"
+        if (!authenticationRequest.tokenValue) {
+            throw new BadCredentialsException("Token invalid")
+        }
+
+        log.debug "Trying to validate token ${authenticationRequest.tokenValue}"
 
 
-            def securityStatelessMap = StatelessService.validateAndExtractToken(authenticationRequest.tokenValue)
+        def securityStatelessMap = StatelessService.validateAndExtractToken(authenticationRequest.tokenValue)
 
-            println securityStatelessMap
-
-            if (securityStatelessMap) {
-                def userDetails = userDetailsService.loadUserByUsername(securityStatelessMap.username, true)
-                log.debug "Authentication result: ${authenticationResult}"
-                authenticationResult = new StatelessAuthenticationToken(userDetails, userDetails.password, userDetails.authorities, authenticationRequest.tokenValue)
-                authenticationResult.securityStatelessMap = securityStatelessMap
-            } else {
-                throw new BadCredentialsException("Token invalid")
-            }
+        if (securityStatelessMap) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername((String)securityStatelessMap.username, true)
+            log.debug "Authentication result: ${authenticationResult}"
+            authenticationResult = new StatelessAuthenticationToken(userDetails, userDetails.password, userDetails.authorities, authenticationRequest.tokenValue)
+            authenticationResult.securityStatelessMap = securityStatelessMap
         }
 
         return authenticationResult
     }
 
-
-
-    @Override
-    public boolean supports(Class<? extends Object> authentication) {
-        return (StatelessAuthenticationToken.class.isAssignableFrom(authentication));
+    boolean supports(Class<?> authentication) {
+        StatelessAuthenticationToken.isAssignableFrom(authentication)
     }
-
-
 }
