@@ -1,28 +1,32 @@
 package net.kaleidos.grails.plugin.security.stateless
 
-import grails.util.Holders as CH
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
+import groovy.transform.CompileStatic
 
+import java.security.InvalidKeyException
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import java.security.InvalidKeyException
-import javax.crypto.SecretKey
-import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
 
+@CompileStatic
 class StatelessService {
-    private static String BEARER = "Bearer "
 
-    private static String getSecret(){
-        return CH.config.grails.plugin.security.stateless.secretKey
+    static transactional = false
+
+    private static final String BEARER = "Bearer "
+
+    private String secret
+    private boolean cypher
+
+    CryptoService cryptoService
+
+    void init(secret, cypher) {
+        this.secret = secret
+        this.cypher = cypher
     }
 
-    private static boolean isCypher(){
-        return CH.config.grails.plugin.security.stateless.cypher?true:false
-    }
-
-
-    private static String hmacSha256(String data) {
+    private String hmacSha256(String data) {
      try {
         Mac mac = Mac.getInstance("HmacSHA256")
         SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256")
@@ -34,28 +38,26 @@ class StatelessService {
       }
     }
 
-    static String generateToken(String userName, Map<String,String> extraData=[:]){
+    String generateToken(String userName, Map<String,String> extraData=[:]){
         def data = [username:userName, extradata: extraData]
-        def text = new JsonBuilder(data).toString()
+        String text = new JsonBuilder(data).toString()
 
-        if (isCypher()){
-            text = CryptoService.encrypt(text)
+        if (cypher) {
+            text = cryptoService.encrypt(text)
         }
 
         def hash = hmacSha256(text)
-        def extendedData = text+"_"+hash
-        return (extendedData as String).getBytes("UTF-8").encodeBase64()
+        String extendedData = text+"_"+hash
+        return extendedData.getBytes("UTF-8").encodeBase64()
     }
 
-
-
-    static Map validateAndExtractToken(String token){
+    Map validateAndExtractToken(String token){
         try {
             if (token.startsWith(BEARER)){
                 token = token.substring(BEARER.size())
             }
 
-            String data = new String((token.decodeBase64()))
+            String data = new String(token.decodeBase64())
 
             def split = data.split("_")
 
@@ -65,18 +67,16 @@ class StatelessService {
 
             if (hash1 == hash2) {
                 def text = split[0]
-                if (isCypher()){
-                    text = CryptoService.decrypt(text)
+                if (cypher) {
+                    text = cryptoService.decrypt(text)
                 }
-                return slurper.parseText(text)
+                return (Map)slurper.parseText(text)
             }
 
-        } catch (Exception e){
+        } catch (e){
             //do nothing
             //e.printStackTrace()
         }
         return [:]
-
     }
-
 }

@@ -1,28 +1,22 @@
 package net.kaleidos.grails.plugin.security.stateless
 
 import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-
 import spock.lang.Specification
-import spock.lang.Unroll
-import spock.lang.Shared
-
-import grails.util.Holders as CH
-
 
 @TestFor(StatelessService)
 class StatelessServiceSpec extends Specification {
 
     def setup() {
-        CH.config.grails.plugin.security.stateless.secretKey = "secret"
+        service.init "secret", false
+		  service.cryptoService = new CryptoService()
+		  service.cryptoService.init 'secret'
     }
 
     void "generate a token"() {
         setup:
             def username = 'palba'
         when:
-            def token = StatelessService.generateToken(username)
+            def token = service.generateToken(username)
         then:
             token == "eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7fX1fenBMTklBa0o0MXpNVVZnUm9kVGlta1FueEM3U0ZVMGZkaGJUaUZWOFpPST0="
     }
@@ -32,7 +26,7 @@ class StatelessServiceSpec extends Specification {
         setup:
             def token = "Bearer eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7fX1fenBMTklBa0o0MXpNVVZnUm9kVGlta1FueEM3U0ZVMGZkaGJUaUZWOFpPST0="
         when:
-            def data = StatelessService.validateAndExtractToken(token)
+            def data = service.validateAndExtractToken(token)
         then:
             data.username == 'palba'
             data.extradata == [:]
@@ -43,7 +37,7 @@ class StatelessServiceSpec extends Specification {
             def username = 'palba'
             def extraData = ['token1':'AAA', 'token2':'BBB']
         when:
-            def token = StatelessService.generateToken(username, extraData)
+            def token = service.generateToken(username, extraData)
         then:
             token == "eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7InRva2VuMSI6IkFBQSIsInRva2VuMiI6IkJCQiJ9fV81RDRFUzFLSzZlRHhZdDV1em5vTThKR0pzczlBMDE0bEprMS8rV1R4TVpjPQ=="
     }
@@ -52,7 +46,7 @@ class StatelessServiceSpec extends Specification {
         setup:
             def token = "Bearer eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7InRva2VuMSI6IkFBQSIsInRva2VuMiI6IkJCQiJ9fV81RDRFUzFLSzZlRHhZdDV1em5vTThKR0pzczlBMDE0bEprMS8rV1R4TVpjPQ=="
         when:
-            def data = StatelessService.validateAndExtractToken(token)
+            def data = service.validateAndExtractToken(token)
         then:
             data.username == 'palba'
             data.extradata['token1'] == 'AAA'
@@ -61,20 +55,20 @@ class StatelessServiceSpec extends Specification {
 
     void "generate an encrypted token"() {
         setup:
-            CH.config.grails.plugin.security.stateless.cypher = true
+            service.init "secret", true
             def username = 'palba'
         when:
-            def token = StatelessService.generateToken(username)
+            def token = service.generateToken(username)
         then:
             token != "eyJ1c2VybmFtZSI6InBhbGJhIiwiZXh0cmFkYXRhIjp7fX1fenBMTklBa0o0MXpNVVZnUm9kVGlta1FueEM3U0ZVMGZkaGJUaUZWOFpPST0="
     }
 
     void "validate an encripted token"() {
         setup:
-            CH.config.grails.plugin.security.stateless.cypher = true
+            service.init "secret", true
             def token = "Bearer OWY3MTU0YTZmNjI2Zjc3YzA1YzkyZGI4MDFiMDVmYzNkMTRiMjRlOTIyNWZjMDQ4ZmIxYjVmZDQ4ZTdjNWQ4MzkyMGNmM2E0MjE0ZDI1NjFjMWMzOWUyODljM2FjZmYxNTdjNWExMTAwMjVjMTRmNTJlODZhNjYxYjg5NGJkYTRlMWU5NzdkZjE2MTMwN2JiZDM2OTYwNjcwYTBkMDYxYl93NGxJbnJ0V2R2Qjk3WEhpYWhTRW5OeVpBYmJTb2UwU3hTYURkMHFxVW5nPQ=="
         when:
-            def data = StatelessService.validateAndExtractToken(token)
+            def data = service.validateAndExtractToken(token)
         then:
             data.username == 'palba'
             data.extradata == [:]
@@ -82,15 +76,13 @@ class StatelessServiceSpec extends Specification {
 
     void "generate and validate an encrypted token"() {
         setup:
-            CH.config.grails.plugin.security.stateless.cypher = true
+            service.init "secret", false
             def username = 'palba'
         when:
-            def token = StatelessService.generateToken(username)
-            def data = StatelessService.validateAndExtractToken(token)
+            def token = service.generateToken(username)
+            def data = service.validateAndExtractToken(token)
         then:
             data.username == 'palba'
             data.extradata == [:]
     }
-
-
 }
