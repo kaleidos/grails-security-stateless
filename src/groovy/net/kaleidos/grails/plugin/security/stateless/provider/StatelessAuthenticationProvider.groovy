@@ -20,6 +20,7 @@ class StatelessAuthenticationProvider implements AuthenticationProvider {
     protected final Logger log = LoggerFactory.getLogger(getClass().name)
 
     GrailsUserDetailsService userDetailsService
+    StatelessService statelessService
 
     Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -31,11 +32,11 @@ class StatelessAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Token invalid")
         }
 
+
         log.debug "Trying to validate token ${authenticationRequest.tokenValue}"
 
 
-        def securityStatelessMap = StatelessService.validateAndExtractToken(authenticationRequest.tokenValue)
-
+        def securityStatelessMap = statelessService.validateAndExtractToken(authenticationRequest.tokenValue)
         if (securityStatelessMap) {
             UserDetails userDetails = userDetailsService.loadUserByUsername((String)securityStatelessMap.username, true)
             log.debug "Authentication result: ${authenticationResult}"
