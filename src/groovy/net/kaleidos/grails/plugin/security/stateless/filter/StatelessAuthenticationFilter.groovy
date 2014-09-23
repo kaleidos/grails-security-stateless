@@ -47,13 +47,12 @@ class StatelessAuthenticationFilter extends GenericFilterBean {
 
         try {
             logger.debug "Found bearer token in Authorization header"
-            tokenValue = servletRequest.getHeader( 'Authorization').substring(7)
+            tokenValue = servletRequest.getHeader('Authorization').substring(7)
             logger.debug "Trying to authenticate the token"
             StatelessAuthenticationToken authenticationRequest = new StatelessAuthenticationToken(tokenValue)
             StatelessAuthenticationToken authenticationResult = statelessAuthenticationProvider.authenticate(authenticationRequest) as StatelessAuthenticationToken
 
             if (authenticationResult.authenticated) {
-
                 logger.debug "Token authenticated."
                 logger.debug "Authentication result: ${authenticationResult}"
                 servletRequest.setAttribute 'securityStatelessMap', authenticationResult.securityStatelessMap

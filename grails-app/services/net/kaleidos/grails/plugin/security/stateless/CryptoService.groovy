@@ -1,6 +1,5 @@
 package net.kaleidos.grails.plugin.security.stateless
 
-import grails.util.Holders as CH
 import groovy.transform.CompileStatic
 
 import java.security.NoSuchAlgorithmException
