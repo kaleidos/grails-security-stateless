@@ -6,3 +6,6 @@ cobertura.ser
 target/
 plugin.xml
 node_modules
+grails-security-stateless-*.zip
+grails-security-stateless-*.zip.sha1
+web-app

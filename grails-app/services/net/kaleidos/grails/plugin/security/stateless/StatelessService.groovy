@@ -9,14 +9,18 @@ import java.security.InvalidKeyException
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 @CompileStatic
 class StatelessService {
-
     static transactional = false
 
     private static final String BEARER = "Bearer "
 
     private String secret
+
+    protected final Logger log = LoggerFactory.getLogger(getClass().name)
     private boolean cypher
 
     CryptoService cryptoService
@@ -27,15 +31,15 @@ class StatelessService {
     }
 
     private String hmacSha256(String data) {
-     try {
-        Mac mac = Mac.getInstance("HmacSHA256")
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256")
-        mac.init(secretKeySpec)
-        byte[] digest = mac.doFinal(data.getBytes("UTF-8"))
-        return digest.encodeBase64().toString()
-       } catch (InvalidKeyException e) {
-        throw new RuntimeException("Invalid key exception while converting to HMac SHA256")
-      }
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256")
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256")
+            mac.init(secretKeySpec)
+            byte[] digest = mac.doFinal(data.getBytes("UTF-8"))
+            return digest.encodeBase64().toString()
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException("Invalid key exception while converting to HMac SHA256")
+        }
     }
 
     String generateToken(String userName, Map<String,String> extraData=[:]){
@@ -76,6 +80,7 @@ class StatelessService {
         } catch (e){
             //do nothing
             //e.printStackTrace()
+            log.debug e.message
         }
         return [:]
     }

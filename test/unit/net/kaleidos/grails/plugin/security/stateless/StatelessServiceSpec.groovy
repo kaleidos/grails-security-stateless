@@ -8,8 +8,8 @@ class StatelessServiceSpec extends Specification {
 
     def setup() {
         service.init "secret", false
-		  service.cryptoService = new CryptoService()
-		  service.cryptoService.init 'secret'
+          service.cryptoService = new CryptoService()
+          service.cryptoService.init 'secret'
     }
 
     void "generate a token"() {
