@@ -29,6 +29,7 @@ class StatelessLoginFilter extends GenericFilterBean {
 
     AuthenticationManager authenticationManager
     AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource
+
     StatelessService statelessService
 
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {

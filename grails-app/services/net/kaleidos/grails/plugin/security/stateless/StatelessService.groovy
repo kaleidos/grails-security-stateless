@@ -1,5 +1,7 @@
 package net.kaleidos.grails.plugin.security.stateless
 
+import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
+
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
@@ -12,22 +14,28 @@ import javax.crypto.spec.SecretKeySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormatter
+import org.joda.time.format.ISODateTimeFormat
+
+
 @CompileStatic
 class StatelessService {
     static transactional = false
 
+    private static final String TOKEN_SIGNING_SEPARATOR = '$$'
+    private static final String TOKEN_SIGNING_SEPARATOR_REGEX = '\\$\\$'
     private static final String BEARER = "Bearer "
 
     private String secret
 
     protected final Logger log = LoggerFactory.getLogger(getClass().name)
-    private boolean cypher
 
     CryptoService cryptoService
+    UserSaltProvider userSaltProvider
 
-    void init(secret, cypher) {
+    void init(String secret) {
         this.secret = secret
-        this.cypher = cypher
     }
 
     private String hmacSha256(String data) {
@@ -44,44 +52,45 @@ class StatelessService {
 
     String generateToken(String userName, Map<String,String> extraData=[:]){
         def data = [username:userName, extradata: extraData]
-        String text = new JsonBuilder(data).toString()
 
-        if (cypher) {
-            text = cryptoService.encrypt(text)
+        String userSalt = userSaltProvider.getUserSalt(userName)
+        if (userSalt) {
+            data["salt"] = userSalt
         }
 
+        DateTimeFormatter formatter = ISODateTimeFormat.dateTime()
+        data["issued_at"] = formatter.print(new DateTime())
+
+        String text = new JsonBuilder(data).toString()
+        text = cryptoService.encrypt(text)
+
         def hash = hmacSha256(text)
-        String extendedData = text+"_"+hash
+        String extendedData = "${text}${TOKEN_SIGNING_SEPARATOR}${hash}"
         return extendedData.getBytes("UTF-8").encodeBase64()
     }
 
     Map validateAndExtractToken(String token){
-        try {
-            if (token.startsWith(BEARER)){
-                token = token.substring(BEARER.size())
-            }
-
-            String data = new String(token.decodeBase64())
-
-            def split = data.split("_")
-
-            def slurper = new JsonSlurper()
-            def hash1 = split[1]
-            def hash2 = hmacSha256(split[0])
-
-            if (hash1 == hash2) {
-                def text = split[0]
-                if (cypher) {
-                    text = cryptoService.decrypt(text)
-                }
-                return (Map)slurper.parseText(text)
-            }
-
-        } catch (e){
-            //do nothing
-            //e.printStackTrace()
-            log.debug e.message
+        if (token.startsWith(BEARER)){
+            token = token.substring(BEARER.size())
         }
-        return [:]
+
+        String data = new String(token.decodeBase64())
+        def split = data.split(TOKEN_SIGNING_SEPARATOR_REGEX)
+
+        if (split.size() != 2) {
+            throw new RuntimeException("Invalid token")
+        }
+
+        def slurper = new JsonSlurper()
+        def hash1 = split[1]
+        def hash2 = hmacSha256(split[0])
+
+        if (hash1 == hash2) {
+            def text = cryptoService.decrypt(split[0])
+            return (Map)slurper.parseText(text)
+        } else {
+            throw new RuntimeException("Invalid token")
+        }
     }
+
 }
