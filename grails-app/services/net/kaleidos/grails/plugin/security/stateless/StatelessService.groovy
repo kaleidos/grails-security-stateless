@@ -93,4 +93,8 @@ class StatelessService {
         }
     }
 
+    void updateUserSalt(String username){
+        userSaltProvider.updateUserSalt(username, UUID.randomUUID().toString())
+    }
+
 }

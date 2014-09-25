@@ -20,7 +20,6 @@ class StatelessInvalidateTokenFilter extends GenericFilterBean {
 
     String endpointUrl
 
-    UserSaltProvider userSaltProvider
     StatelessService statelessService
 
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -56,7 +55,7 @@ class StatelessInvalidateTokenFilter extends GenericFilterBean {
 
         try {
             def tokenData = statelessService.validateAndExtractToken(tokenValue)
-            userSaltProvider.updateUserSalt(tokenData.username as String, UUID.randomUUID().toString())
+            statelessService.updateUserSalt(tokenData.username as String)
             return
         } catch (Exception e) {
             log.debug "Problem updating the user salt: ${e.message}"

@@ -86,7 +86,6 @@ class SecurityStatelessGrailsPlugin {
 
         statelessInvalidateTokenFilter(StatelessInvalidateTokenFilter) {
             statelessService = ref('statelessService')
-            userSaltProvider = ref('userSaltProvider')
             endpointUrl = conf.invalidate.endpointUrl
             active = conf.invalidate.active?:false
         }
