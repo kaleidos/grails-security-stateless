@@ -26,6 +26,7 @@ class SecurityStatelessGrailsPlugin {
     def developers = [ [ name: "Pablo Alba", email: "pablo.alba@kaleidos.net" ]]
     def scm = [ url: "https://github.com/kaleidos/grails-security-stateless" ]
     def issueManagement = [system: 'GITHUB', url: 'https://github.com/kaleidos/grails-security-stateless/issues']
+
     def loadAfter = ["springSecurityCore"]
 
     def pluginExcludes = [
@@ -110,13 +111,15 @@ class SecurityStatelessGrailsPlugin {
         def securityConf = SpringSecurityUtils.securityConfig
         String userClassName = securityConf.userLookup.userDomainClassName
 
-        def userClass = ctx.grailsApplication.getDomainClass(userClassName).clazz
-        def usernamePropertyName = securityConf.userLookup.usernamePropertyName
+        if (userClassName) {
+            def userClass = ctx.grailsApplication.getDomainClass(userClassName).clazz
+            def usernamePropertyName = securityConf.userLookup.usernamePropertyName
 
-        if (conf.expirationTime) {
-            ctx.statelessTokenValidator.init(new Integer(conf.expirationTime))
+            if (conf.expirationTime) {
+                ctx.statelessTokenValidator.init(new Integer(conf.expirationTime))
+            }
+
+            ctx.userSaltProvider?.init(userClass, usernamePropertyName, conf.saltField?:"salt")
         }
-
-        ctx.userSaltProvider?.init(userClass, usernamePropertyName, conf.saltField?:"salt")
     }
 }
