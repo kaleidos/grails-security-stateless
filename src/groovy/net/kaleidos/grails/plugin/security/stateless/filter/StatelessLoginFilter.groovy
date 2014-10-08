@@ -1,6 +1,7 @@
 package net.kaleidos.grails.plugin.security.stateless.filter
 
 import grails.converters.JSON
+
 import groovy.transform.CompileStatic
 
 import javax.servlet.FilterChain
@@ -17,6 +18,8 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.filter.GenericFilterBean
+
+import groovy.json.JsonSlurper
 
 @CompileStatic
 class StatelessLoginFilter extends GenericFilterBean {
@@ -56,9 +59,15 @@ class StatelessLoginFilter extends GenericFilterBean {
         }
 
 
-        String principal = request.getParameter(usernameField)
-        String credentials = request.getParameter(passwordField)
-
+        String principal, credentials
+        if (["application/json", "text/json"].contains(httpServletRequest.contentType)) {
+            def json = new JsonSlurper().parseText(httpServletRequest.reader.text)
+            principal = json[usernameField]
+            credentials = json[passwordField]
+        } else {
+            principal = request.getParameter(usernameField)
+            credentials = request.getParameter(passwordField)
+        }
 
          //Request must contain parameters
         if (!principal || !credentials) {
