@@ -58,9 +58,8 @@ class StatelessLoginFilter extends GenericFilterBean {
             return
         }
 
-
         String principal, credentials
-        if (["application/json", "text/json"].contains(httpServletRequest.contentType)) {
+        if (["application/json", "text/json"].any { httpServletRequest.contentType.contains(it) }) {
             def json = new JsonSlurper().parseText(httpServletRequest.reader.text)
             principal = json[usernameField]
             credentials = json[passwordField]
