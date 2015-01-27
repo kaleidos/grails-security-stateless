@@ -43,7 +43,12 @@ class SecurityStatelessGrailsPlugin {
     def doWithSpring = {
         def conf = application.config.grails.plugin.security.stateless.springsecurity
 
-        if (!conf.integration) {
+        if (!conf || !conf.integration) {
+            return
+        }
+
+        def securityConfig = SpringSecurityUtils.securityConfig
+        if (!securityConfig || !securityConfig.active) {
             return
         }
 
