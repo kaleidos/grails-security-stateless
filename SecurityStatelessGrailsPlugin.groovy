@@ -12,6 +12,9 @@ import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
 
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenValidator
 
+import net.kaleidos.grails.plugin.security.stateless.ForbiddenEntryPoint
+import net.kaleidos.grails.plugin.security.stateless.JsonDeniedHandler
+
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.SecurityFilterPosition
 
@@ -95,6 +98,10 @@ class SecurityStatelessGrailsPlugin {
             endpointUrl = conf.invalidate.endpointUrl
             active = conf.invalidate.active?:false
         }
+
+        // Needed in order to not send HTML redirections
+        authenticationEntryPoint(ForbiddenEntryPoint)
+        accessDeniedHandler(JsonDeniedHandler)
 
         SpringSecurityUtils.registerFilter('statelessAuthenticationFilter', SecurityFilterPosition.SECURITY_CONTEXT_FILTER.order + 10)
         SpringSecurityUtils.registerFilter('statelessLoginFilter', SecurityFilterPosition.FIRST.order + 1)
