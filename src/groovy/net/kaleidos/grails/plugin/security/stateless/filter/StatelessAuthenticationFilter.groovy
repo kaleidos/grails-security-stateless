@@ -25,7 +25,6 @@ class StatelessAuthenticationFilter extends GenericFilterBean {
     AuthenticationFailureHandler authenticationFailureHandler
     boolean active
 
-
     @Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest servletRequest = request as HttpServletRequest
@@ -41,7 +40,7 @@ class StatelessAuthenticationFilter extends GenericFilterBean {
         logger.debug "Looking for bearer token in Authorization header"
         if(!servletRequest.getHeader( 'Authorization')?.startsWith( 'Bearer ') ) {
             logger.debug "Token not found"
-            authenticationFailureHandler.onAuthenticationFailure(servletRequest, servletResponse, new AuthenticationCredentialsNotFoundException("Token not found"))
+            chain.doFilter(request, response)
             return
         }
 
