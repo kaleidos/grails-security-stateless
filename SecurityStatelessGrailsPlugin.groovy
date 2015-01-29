@@ -1,4 +1,3 @@
-import net.kaleidos.grails.plugin.security.stateless.StatelessService
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
 
 import net.kaleidos.grails.plugin.security.stateless.filter.StatelessAuthenticationFilter
@@ -11,7 +10,7 @@ import net.kaleidos.grails.plugin.security.stateless.provider.StatelessAuthentic
 import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
 
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenValidator
-
+import net.kaleidos.grails.plugin.security.stateless.token.LegacyStatelessTokenProvider
 import net.kaleidos.grails.plugin.security.stateless.ForbiddenEntryPoint
 import net.kaleidos.grails.plugin.security.stateless.JsonDeniedHandler
 
@@ -60,8 +59,7 @@ class SecurityStatelessGrailsPlugin {
         userSaltProvider(UserSaltProvider)
         cryptoService(CryptoService)
 
-        statelessService(StatelessService) {
-            userSaltProvider = ref("userSaltProvider")
+        statelessTokenProvider(LegacyStatelessTokenProvider) {
             cryptoService = ref("cryptoService")
         }
 
@@ -77,16 +75,17 @@ class SecurityStatelessGrailsPlugin {
 
         statelessAuthenticationProvider(StatelessAuthenticationProvider) {
             userDetailsService = ref('userDetailsService')
-            statelessService = ref('statelessService')
+            statelessTokenProvider = ref('statelessTokenProvider')
             statelessTokenValidator = ref('statelessTokenValidator')
         }
 
         statelessAuthenticationFailureHandler(StatelessAuthenticationFailureHandler)
 
         statelessLoginFilter(StatelessLoginFilter) {
+            statelessTokenProvider = ref('statelessTokenProvider')
+            userSaltProvider = ref('userSaltProvider')
             authenticationManager = ref('authenticationManager')
             authenticationDetailsSource = ref('authenticationDetailsSource')
-            statelessService = ref('statelessService')
             endpointUrl = conf.login.endpointUrl
             usernameField = conf.login.usernameField?:"user"
             passwordField = conf.login.passwordField?:"password"
@@ -94,7 +93,7 @@ class SecurityStatelessGrailsPlugin {
         }
 
         statelessInvalidateTokenFilter(StatelessInvalidateTokenFilter) {
-            statelessService = ref('statelessService')
+            statelessTokenProvider = ref('statelessTokenProvider')
             endpointUrl = conf.invalidate.endpointUrl
             active = conf.invalidate.active?:false
         }
@@ -117,7 +116,6 @@ class SecurityStatelessGrailsPlugin {
             throw new RuntimeException("Spring security stateles secretKey not configured or empty. Please, set 'grails.plugin.security.stateless.secretKey' value in your Config.groovy")
         }
 
-        ctx.statelessService.init "${conf.secretKey}"
         ctx.cryptoService.init "${conf.secretKey}"
 
         def securityConf = SpringSecurityUtils.securityConfig

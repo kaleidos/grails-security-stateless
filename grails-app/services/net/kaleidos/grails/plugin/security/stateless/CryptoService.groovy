@@ -4,8 +4,10 @@ import groovy.transform.CompileStatic
 
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
+import java.security.InvalidKeyException
 import java.security.spec.KeySpec
 
+import javax.crypto.Mac
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
@@ -85,4 +87,17 @@ class CryptoService {
             null
         }
     }
+
+    String hash(String data) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256")
+            SecretKeySpec secretKeySpec = new SecretKeySpec(this.secret.getBytes("UTF-8"), "HmacSHA256")
+            mac.init(secretKeySpec)
+            byte[] digest = mac.doFinal(data.getBytes("UTF-8"))
+            return digest.encodeBase64().toString()
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException("Invalid key exception while converting to HMac SHA256")
+        }
+    }
+
 }

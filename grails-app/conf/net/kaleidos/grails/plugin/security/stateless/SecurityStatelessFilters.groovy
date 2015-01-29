@@ -5,7 +5,7 @@ import org.apache.commons.lang.WordUtils
 
 class SecurityStatelessFilters {
 
-    def statelessService
+    def statelessTokenProvider
 
     private boolean isSecuredStateless(String controllerName, String actionName, grailsApplication){
         def controller = grailsApplication.controllerClasses.find{controllerName == WordUtils.uncapitalize(it.name)}
@@ -31,7 +31,7 @@ class SecurityStatelessFilters {
                 }
 
                 def authorization = request.getHeader("Authorization")
-                def map = statelessService.validateAndExtractToken(authorization)
+                def map = statelessTokenProvider.validateAndExtractToken(authorization)
                 if (map) {
                     request.securityStatelessMap = map
                     return true
