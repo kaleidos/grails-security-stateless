@@ -1,15 +1,17 @@
-package net.kaleidos.grails.plugin.security.stateless
+package net.kaleidos.grails.plugin.security.stateless.token
+
+import net.kaleidos.grails.plugin.security.stateless.CryptoService
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 
 import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
 
-class LegacyStatelessTokenProviderSpec extends Specification {
+class JwtStatelessTokenProviderSpec extends Specification {
     def tokenProvider
 
     def setup() {
-        tokenProvider = new LegacyTokenProviderSpec()
+        tokenProvider = new JwtStatelessTokenProvider()
         tokenProvider.cryptoService = new CryptoService()
         tokenProvider.cryptoService.init 'secret'
     }
@@ -17,14 +19,14 @@ class LegacyStatelessTokenProviderSpec extends Specification {
     void "generate a token and then extract it"() {
         setup:
             def username = 'palba'
-            def token = service.generateToken(username, salt)
+            def token = tokenProvider.generateToken(username, salt)
 
         when:
-            def data = tokenProvider.validateAndExtractToken(token, salt)
+            def data = tokenProvider.validateAndExtractToken(token)
 
         then:
             data.username == 'palba'
-            data.extradata == [:]
+            data.extradata == null
             data.issued_at != null
             data.salt == salt
 
@@ -39,10 +41,11 @@ class LegacyStatelessTokenProviderSpec extends Specification {
             def token = tokenProvider.generateToken(username, salt, extraData)
 
         when:
-            def data = tokenProvider.validateAndExtractToken(token, salt)
+            def data = tokenProvider.validateAndExtractToken(token)
 
         then:
             data.username == 'palba'
+            data.extradata != null
             data.extradata['token1'] == 'AAA'
             data.extradata['token2'] == 'BBB'
             data.issued_at != null

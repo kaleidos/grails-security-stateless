@@ -128,5 +128,27 @@ grails.plugin.security.stateless.springsecurity.login.passwordField = "password"
 The login will return 400 (BAD_REQUEST) if there isn't username or password, 401 (UNAUTHORIZED) for wrong username/password, or 200 (OK) for valid username/password. On 200, also return a JSON body with the token:
 
 ```groovy
-["token":"Bearer eyJ1c2VybmFtZSI6InBhbGJhIn1fMUkwL3FIblpoQ2JYek5hVVVxSUw4TjAvNmk1Y3Qwb0IvamhQVFdUWGpNTT0="]
+["token":"eyJ1c2VybmFtZSI6InBhbGJhIn1fMUkwL3FIblpoQ2JYek5hVVVxSUw4TjAvNmk1Y3Qwb0IvamhQVFdUWGpNTT0="]
+```
+
+#### Token format
+Currently the plugin supports two token formats:
+
+##### Legacy format (default)
+Encrypted internal format. This is an internal representation of the token, encoded an encrypted using Xx recommended when your extraData field could have sensitive data.
+
+This is the default configuration but if you want to explicitely activate it you can set it on the Config.groovy file:
+
+```
+grails.plugin.security.stateless.format = "Legacy"
+```
+
+
+##### JWT format
+Standarized format using the format defined in the (JWT specification)[http://jwt.io]. Uses the HS256 as the implementations algorithm
+
+You can activate this format on your Config.groovy file as follows:
+
+```
+grails.plugin.security.stateless.format = "JWT"
 ```
