@@ -53,4 +53,19 @@ class UserSaltProvider {
             }
         }
     }
+
+    public boolean isValidSalt(Map tokenData) {
+        def username = tokenData["username"]
+        if (username == false) {
+            return false
+        }
+
+        def storedSalt = getUserSalt(username)
+
+        if (storedSalt == null) {
+            return true
+        }
+
+        return storedSalt == tokenData["salt"]
+    }
 }

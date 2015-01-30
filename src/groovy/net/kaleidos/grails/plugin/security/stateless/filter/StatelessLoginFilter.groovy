@@ -11,7 +11,8 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-import net.kaleidos.grails.plugin.security.stateless.StatelessService
+import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenProvider
+import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
 
 import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.authentication.AuthenticationManager
@@ -33,7 +34,8 @@ class StatelessLoginFilter extends GenericFilterBean {
     AuthenticationManager authenticationManager
     AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource
 
-    StatelessService statelessService
+    StatelessTokenProvider statelessTokenProvider
+    UserSaltProvider userSaltProvider
 
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = request as HttpServletRequest
@@ -87,7 +89,8 @@ class StatelessLoginFilter extends GenericFilterBean {
                 logger.debug "Request authenticated. Storing the authentication result in the security context"
                 logger.debug "Authentication result: ${authenticationResult}"
 
-                String tokenValue = statelessService.generateToken(principal)
+                String salt = userSaltProvider.getUserSalt(principal)
+                String tokenValue = statelessTokenProvider.generateToken(principal, salt, [:])
                 logger.debug "Generated token: ${tokenValue}"
 
                 httpServletResponse.setContentType("application/json")

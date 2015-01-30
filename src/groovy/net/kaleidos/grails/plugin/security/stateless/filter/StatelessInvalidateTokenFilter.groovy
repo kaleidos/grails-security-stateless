@@ -9,8 +9,8 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-import net.kaleidos.grails.plugin.security.stateless.StatelessService
 import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
+import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenProvider
 
 import org.springframework.web.filter.GenericFilterBean
 
@@ -20,7 +20,8 @@ class StatelessInvalidateTokenFilter extends GenericFilterBean {
 
     String endpointUrl
 
-    StatelessService statelessService
+    StatelessTokenProvider statelessTokenProvider
+    UserSaltProvider userSaltProvider
 
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = request as HttpServletRequest
@@ -54,9 +55,12 @@ class StatelessInvalidateTokenFilter extends GenericFilterBean {
         }
 
         try {
-            def tokenData = statelessService.validateAndExtractToken(tokenValue)
-            statelessService.updateUserSalt(tokenData.username as String)
-            return
+            def tokenData = statelessTokenProvider.validateAndExtractToken(tokenValue)
+            if (!userSaltProvider.isValidSalt(tokenData)) {
+                log.debug "Invalid salt in the token"
+                httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST) //400
+            }
+            userSaltProvider.updateUserSalt(tokenData.username as String, UUID.randomUUID().toString())
         } catch (Exception e) {
             log.debug "Problem updating the user salt: ${e.message}"
             httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST) //400

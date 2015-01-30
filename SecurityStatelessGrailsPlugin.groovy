@@ -1,4 +1,3 @@
-import net.kaleidos.grails.plugin.security.stateless.StatelessService
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
 
 import net.kaleidos.grails.plugin.security.stateless.filter.StatelessAuthenticationFilter
@@ -11,7 +10,8 @@ import net.kaleidos.grails.plugin.security.stateless.provider.StatelessAuthentic
 import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
 
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenValidator
-
+import net.kaleidos.grails.plugin.security.stateless.token.LegacyStatelessTokenProvider
+import net.kaleidos.grails.plugin.security.stateless.token.JwtStatelessTokenProvider
 import net.kaleidos.grails.plugin.security.stateless.ForbiddenEntryPoint
 import net.kaleidos.grails.plugin.security.stateless.JsonDeniedHandler
 
@@ -44,30 +44,42 @@ class SecurityStatelessGrailsPlugin {
     ]
 
     def doWithSpring = {
-        def conf = application.config.grails.plugin.security.stateless.springsecurity
-
-        if (!conf || !conf.integration) {
-            return
-        }
-
-        def securityConfig = SpringSecurityUtils.securityConfig
-        if (!securityConfig || !securityConfig.active) {
-            return
-        }
-
-        println '\nConfiguring Spring Security Stateless ...'
-
-        userSaltProvider(UserSaltProvider)
+        // This beans could be used without Spring Security integration
         cryptoService(CryptoService)
-
-        statelessService(StatelessService) {
-            userSaltProvider = ref("userSaltProvider")
-            cryptoService = ref("cryptoService")
-        }
+        userSaltProvider(UserSaltProvider)
 
         statelessTokenValidator(StatelessTokenValidator){
             userSaltProvider = ref("userSaltProvider")
         }
+
+        def conf = application.config.grails.plugin.security.stateless
+
+        if (conf?.format == "JWT") {
+            // JWT format
+            statelessTokenProvider(JwtStatelessTokenProvider) {
+                cryptoService = ref("cryptoService")
+            }
+        } else if (!conf?.format || conf?.format == "Legacy"){
+            // Legacy format
+            statelessTokenProvider(LegacyStatelessTokenProvider) {
+                cryptoService = ref("cryptoService")
+            }
+        } else {
+            throw new RuntimeException("Format ${conf?.format} is not a valid format. Allowed values: 'Legacy' or 'JWT'")
+        }
+
+        def securityConfig = SpringSecurityUtils.securityConfig
+        if (!securityConfig || !securityConfig.active) {
+            log.debug "Spring security not active"
+            return
+        }
+
+        if (!conf?.springsecurity || !conf?.springsecurity.integration) {
+            log.debug "Spring security integration disabled"
+            return
+        }
+
+        println '\nConfiguring Spring Security Stateless ...'
 
         statelessAuthenticationFilter(StatelessAuthenticationFilter) {
             authenticationFailureHandler = ref('statelessAuthenticationFailureHandler')
@@ -77,26 +89,27 @@ class SecurityStatelessGrailsPlugin {
 
         statelessAuthenticationProvider(StatelessAuthenticationProvider) {
             userDetailsService = ref('userDetailsService')
-            statelessService = ref('statelessService')
+            statelessTokenProvider = ref('statelessTokenProvider')
             statelessTokenValidator = ref('statelessTokenValidator')
         }
 
         statelessAuthenticationFailureHandler(StatelessAuthenticationFailureHandler)
 
         statelessLoginFilter(StatelessLoginFilter) {
+            statelessTokenProvider = ref('statelessTokenProvider')
+            userSaltProvider = ref('userSaltProvider')
             authenticationManager = ref('authenticationManager')
             authenticationDetailsSource = ref('authenticationDetailsSource')
-            statelessService = ref('statelessService')
-            endpointUrl = conf.login.endpointUrl
-            usernameField = conf.login.usernameField?:"user"
-            passwordField = conf.login.passwordField?:"password"
-            active = conf.login.active?:false
+            endpointUrl = conf.springsecurity.login.endpointUrl
+            usernameField = conf.springsecurity.login.usernameField?:"user"
+            passwordField = conf.springsecurity.login.passwordField?:"password"
+            active = conf.springsecurity.login.active?:false
         }
 
         statelessInvalidateTokenFilter(StatelessInvalidateTokenFilter) {
-            statelessService = ref('statelessService')
-            endpointUrl = conf.invalidate.endpointUrl
-            active = conf.invalidate.active?:false
+            statelessTokenProvider = ref('statelessTokenProvider')
+            endpointUrl = conf.springsecurity.invalidate.endpointUrl
+            active = conf.springsecurity.invalidate.active?:false
         }
 
         // Needed in order to not send HTML redirections
@@ -117,8 +130,16 @@ class SecurityStatelessGrailsPlugin {
             throw new RuntimeException("Spring security stateles secretKey not configured or empty. Please, set 'grails.plugin.security.stateless.secretKey' value in your Config.groovy")
         }
 
-        ctx.statelessService.init "${conf.secretKey}"
         ctx.cryptoService.init "${conf.secretKey}"
+
+        if (conf.expirationTime) {
+            ctx.statelessTokenValidator.init(new Integer(conf.expirationTime))
+        }
+
+        if (!conf?.springsecurity || !conf?.springsecurity.integration) {
+            log.debug "Spring security integration disabled"
+            return
+        }
 
         def securityConf = SpringSecurityUtils.securityConfig
         String userClassName = securityConf.userLookup.userDomainClassName
@@ -126,12 +147,7 @@ class SecurityStatelessGrailsPlugin {
         if (userClassName) {
             def userClass = ctx.grailsApplication.getDomainClass(userClassName).clazz
             def usernamePropertyName = securityConf.userLookup.usernamePropertyName
-
-            if (conf.expirationTime) {
-                ctx.statelessTokenValidator.init(new Integer(conf.expirationTime))
-            }
-
-            ctx.userSaltProvider?.init(userClass, usernamePropertyName, conf.saltField?:"salt")
+            ctx.userSaltProvider?.init(userClass, usernamePropertyName, conf.springsecurity.saltField?:"salt")
         }
     }
 }

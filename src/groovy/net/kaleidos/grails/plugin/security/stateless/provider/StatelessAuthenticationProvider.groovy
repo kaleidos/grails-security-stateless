@@ -13,7 +13,7 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.Assert
 
-import net.kaleidos.grails.plugin.security.stateless.StatelessService
+import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenProvider
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessAuthenticationToken
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenValidator
 
@@ -23,7 +23,7 @@ class StatelessAuthenticationProvider implements AuthenticationProvider {
     protected final Logger log = LoggerFactory.getLogger(getClass().name)
 
     GrailsUserDetailsService userDetailsService
-    StatelessService statelessService
+    StatelessTokenProvider statelessTokenProvider
     StatelessTokenValidator statelessTokenValidator
 
     Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -37,7 +37,7 @@ class StatelessAuthenticationProvider implements AuthenticationProvider {
 
         log.debug "Trying to validate token ${authenticationRequest.tokenValue}"
 
-        def securityStatelessMap = statelessService.validateAndExtractToken(authenticationRequest.tokenValue)
+        def securityStatelessMap = statelessTokenProvider.validateAndExtractToken(authenticationRequest.tokenValue)
         if (securityStatelessMap) {
             UserDetails userDetails = userDetailsService.loadUserByUsername((String)securityStatelessMap.username, true)
 
