@@ -54,18 +54,18 @@ class SecurityStatelessGrailsPlugin {
 
         def conf = application.config.grails.plugin.security.stateless
 
-        if (conf.format == "JWT") {
+        if (conf?.format == "JWT") {
+            // JWT format
             statelessTokenProvider(JwtStatelessTokenProvider) {
                 cryptoService = ref("cryptoService")
             }
-        } else if (conf.format == "Legacy") {
+        } else if (!conf?.format || conf?.format == "Legacy"){
+            // Legacy format
             statelessTokenProvider(LegacyStatelessTokenProvider) {
                 cryptoService = ref("cryptoService")
             }
         } else {
-            statelessTokenProvider(LegacyStatelessTokenProvider) {
-                cryptoService = ref("cryptoService")
-            }
+            throw new RuntimeException("Format ${conf?.format} is not a valid format. Allowed values: 'Legacy' or 'JWT'")
         }
 
         def securityConfig = SpringSecurityUtils.securityConfig

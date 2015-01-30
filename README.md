@@ -135,7 +135,9 @@ The login will return 400 (BAD_REQUEST) if there isn't username or password, 401
 Currently the plugin supports two token formats:
 
 ##### Legacy format (default)
-Encrypted internal format. This is an internal representation of the token, encoded an encrypted using Xx recommended when your extraData field could have sensitive data.
+Encrypted internal format. This format is recommended when your extraData field could have sensitive data.
+
+Custom format for internal representation of the token, encoded an encrypted using [PBKDF2 (Password-Based Key Derivation Function 2)](http://en.wikipedia.org/wiki/PBKDF2).
 
 This is the default configuration but if you want to explicitely activate it you can set it on the Config.groovy file:
 
