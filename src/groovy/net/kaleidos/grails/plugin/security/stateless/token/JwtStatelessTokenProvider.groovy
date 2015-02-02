@@ -13,6 +13,7 @@ import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
 
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
+import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
 
 @Slf4j
 class JwtStatelessTokenProvider implements StatelessTokenProvider {
@@ -50,14 +51,14 @@ class JwtStatelessTokenProvider implements StatelessTokenProvider {
 
         if (header64 == null || payload64 == null || signature == null) {
             log.debug "Token should have two points to split"
-            throw new RuntimeException("Invalid token")
+            throw new StatelessValidationException("Invalid token")
         }
 
         // Validate signature
         String expectedSignature = cryptoService.hash("${header64}.${payload64}")
 
         if (signature != expectedSignature) {
-            throw new RuntimeException("Invalid token")
+            throw new StatelessValidationException("Invalid token")
         }
 
         // Extract the payload
