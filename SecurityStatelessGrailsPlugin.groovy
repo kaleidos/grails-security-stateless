@@ -84,6 +84,7 @@ class SecurityStatelessGrailsPlugin {
         statelessAuthenticationFilter(StatelessAuthenticationFilter) {
             authenticationFailureHandler = ref('statelessAuthenticationFailureHandler')
             statelessAuthenticationProvider = ref('statelessAuthenticationProvider')
+            accessDeniedHandler = ref('accessDeniedHandler')
             active = true
         }
 
