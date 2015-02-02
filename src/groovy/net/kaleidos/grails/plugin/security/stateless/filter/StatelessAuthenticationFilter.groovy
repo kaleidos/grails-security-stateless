@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessAuthenticationToken
+import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.authentication.AuthenticationProvider
@@ -18,11 +19,15 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.web.filter.GenericFilterBean
 
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.web.access.AccessDeniedHandler
+
 @CompileStatic
 class StatelessAuthenticationFilter extends GenericFilterBean {
 
     AuthenticationProvider statelessAuthenticationProvider
     AuthenticationFailureHandler authenticationFailureHandler
+    AccessDeniedHandler accessDeniedHandler
     boolean active
 
     @Override
@@ -37,14 +42,14 @@ class StatelessAuthenticationFilter extends GenericFilterBean {
 
         String tokenValue
 
-        logger.debug "Looking for bearer token in Authorization header"
-        if(!servletRequest.getHeader( 'Authorization')?.startsWith( 'Bearer ') ) {
-            logger.debug "Token not found"
-            chain.doFilter(request, response)
-            return
-        }
-
         try {
+            logger.debug "Looking for bearer token in Authorization header"
+            if(!servletRequest.getHeader( 'Authorization')?.startsWith( 'Bearer ') ) {
+                logger.debug "Token not found"
+                chain.doFilter(request, response)
+                return
+            }
+
             logger.debug "Found bearer token in Authorization header"
             tokenValue = servletRequest.getHeader('Authorization').substring(7)
             logger.debug "Trying to authenticate the token"
@@ -58,9 +63,12 @@ class StatelessAuthenticationFilter extends GenericFilterBean {
                 SecurityContextHolder.context.setAuthentication(authenticationResult)
                 chain.doFilter(request, response)
             }
-        } catch (AuthenticationException ae) {
-            logger.debug "Authentication failed: ${ae.message}"
-            authenticationFailureHandler.onAuthenticationFailure(servletRequest, servletResponse, ae)
+        } catch (StatelessValidationException e) {
+            logger.debug "Token validation failed: ${e.message}"
+            accessDeniedHandler.handle(servletRequest, servletResponse, new AccessDeniedException(e.message, e))
+        } catch (AuthenticationException e) {
+            logger.debug "Authentication failed: ${e.message}"
+            authenticationFailureHandler.onAuthenticationFailure(servletRequest, servletResponse, e)
         }
     }
 }

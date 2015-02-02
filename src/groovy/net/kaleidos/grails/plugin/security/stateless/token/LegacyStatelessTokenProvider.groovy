@@ -13,6 +13,8 @@ import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
 
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
+import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
+
 
 @CompileStatic
 @Slf4j
@@ -50,7 +52,7 @@ class LegacyStatelessTokenProvider implements StatelessTokenProvider {
         def split = data.split(TOKEN_SIGNING_SEPARATOR_REGEX)
 
         if (split.size() != 2) {
-            throw new RuntimeException("Invalid token")
+            throw new StatelessValidationException("Invalid token")
         }
 
         def slurper = new JsonSlurper()
@@ -58,7 +60,7 @@ class LegacyStatelessTokenProvider implements StatelessTokenProvider {
         def hash2 = cryptoService.hash(split[0])
 
         if (hash1 != hash2) {
-            throw new RuntimeException("Invalid token")
+            throw new StatelessValidationException("Invalid token")
         }
 
         def text = cryptoService.decrypt(split[0])
