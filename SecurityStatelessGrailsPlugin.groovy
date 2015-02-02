@@ -19,7 +19,7 @@ import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.SecurityFilterPosition
 
 class SecurityStatelessGrailsPlugin {
-    def version = "0.0.3-SNAPSHOT"
+    def version = "0.0.4"
     def grailsVersion = "2.2 > *"
     def title = "Grails Spring Security Stateless Plugin"
     def description = 'Implements stateless authentication, with optional use of using Spring Security.'
