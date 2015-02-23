@@ -147,7 +147,7 @@ grails.plugin.security.stateless.format = "Legacy"
 
 
 ##### JWT format
-Standarized format using the format defined in the (JWT specification)[http://jwt.io]. Uses the HS256 as the implementations algorithm
+Standarized format using the format defined in the [JWT specification](http://jwt.io). Uses the HS256 as the implementations algorithm
 
 You can activate this format on your Config.groovy file as follows:
 
