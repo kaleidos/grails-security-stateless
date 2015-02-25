@@ -3,6 +3,7 @@ package net.kaleidos.grails.plugin.security.stateless.token
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
 import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
@@ -16,7 +17,8 @@ class LegacyStatelessTokenProviderSpec extends Specification {
         tokenProvider.cryptoService.init 'secret'
     }
 
-    void "generate a token and then extract it"() {
+    @Unroll
+    void "generate a token and then extract it [salt=#salt]"() {
         setup:
             def username = 'palba'
             def token = tokenProvider.generateToken(username, salt)
@@ -31,7 +33,7 @@ class LegacyStatelessTokenProviderSpec extends Specification {
             data.salt == salt
 
         where:
-            salt = "salt"
+            salt << ["salt", null]
     }
 
     void "generate a token with extra data"() {
