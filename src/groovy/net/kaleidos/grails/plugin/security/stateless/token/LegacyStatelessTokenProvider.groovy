@@ -44,6 +44,11 @@ class LegacyStatelessTokenProvider implements StatelessTokenProvider {
     }
 
     Map validateAndExtractToken(String token) {
+        if (!token) {
+            log.debug "Token must be present"
+            throw new StatelessValidationException("Invalid token")
+        }
+
         if (token.startsWith(BEARER)){
             token = token.substring(BEARER.size())
         }
