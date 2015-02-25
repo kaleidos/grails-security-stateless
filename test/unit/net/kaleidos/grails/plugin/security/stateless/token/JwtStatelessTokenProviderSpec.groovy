@@ -2,7 +2,6 @@ package net.kaleidos.grails.plugin.security.stateless.token
 
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
 
-import grails.test.mixin.TestFor
 import spock.lang.Specification
 
 import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
