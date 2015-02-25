@@ -21,7 +21,7 @@ class JwtStatelessTokenProvider implements StatelessTokenProvider {
 
     CryptoService cryptoService
 
-    String generateToken(String userName, String salt, Map<String,String> extraData=[:]){
+    String generateToken(String userName, String salt=null, Map<String,String> extraData=[:]){
         def data = [username:userName]
 
         if (extraData) {
