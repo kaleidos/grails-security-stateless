@@ -5,6 +5,7 @@ import net.kaleidos.grails.plugin.security.stateless.CryptoService
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 
+import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
 import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
 
 class LegacyStatelessTokenProviderSpec extends Specification {
@@ -80,5 +81,16 @@ class LegacyStatelessTokenProviderSpec extends Specification {
 
         then:
             thrown(RuntimeException)
+    }
+
+    void "Try to extract null token"() {
+        given: 'a null token'
+            def token = null
+
+        when: 'trying to validate and extract the token'
+            def data = tokenProvider.validateAndExtractToken(token)
+
+        then: 'an exception must be thrown'
+            thrown(StatelessValidationException)
     }
 }
