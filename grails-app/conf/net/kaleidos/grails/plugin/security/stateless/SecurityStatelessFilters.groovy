@@ -14,6 +14,9 @@ class SecurityStatelessFilters {
             if (clazz.isAnnotationPresent(SecuredStateless)) {
                 return true
             }
+            if (!actionName) {
+                actionName = controller.defaultAction
+            }
             def method = clazz.methods.find{actionName == it.name}
             if (method) {
                 return method.isAnnotationPresent(SecuredStateless)
