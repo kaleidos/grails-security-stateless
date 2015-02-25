@@ -1,5 +1,7 @@
 package net.kaleidos.grails.plugin.security.stateless
 
+import groovy.json.JsonBuilder
+
 import net.kaleidos.grails.plugin.security.stateless.annotation.SecuredStateless
 import org.apache.commons.lang.WordUtils
 
@@ -34,12 +36,23 @@ class SecurityStatelessFilters {
                 }
 
                 def authorization = request.getHeader("Authorization")
-                def map = statelessTokenProvider.validateAndExtractToken(authorization)
+                try {
+                    def map = statelessTokenProvider.validateAndExtractToken(authorization)
+                } catch (StatelessValidationException e) {
+                    Closure getJsonErrorBytes = { String error ->
+                        Map errorMap = [message: error]
+                        String jsonMap = (new JsonBuilder(errorMap)).toString()
+                        return jsonMap.bytes
+                    }
+                    response.status = 401
+                    response.outputStream << getJsonErrorBytes(e.message)
+                    return false
+                }
+
                 if (map) {
                     request.securityStatelessMap = map
                     return true
                 }
-
                 response.status = 401
                 return false
             }
