@@ -13,7 +13,7 @@ import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
 
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
-import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
+import net.kaleidos.grails.plugin.security.stateless.exception.StatelessValidationException
 
 
 @CompileStatic
@@ -24,6 +24,11 @@ class LegacyStatelessTokenProvider implements StatelessTokenProvider {
     private static final String BEARER = "Bearer "
 
     CryptoService cryptoService
+    Integer expirationTime
+
+    public void init(Integer expirationTime) {
+        this.expirationTime = expirationTime
+    }
 
     String generateToken(String userName, String salt=null, Map<String,String> extraData=[:]){
         def data = [username:userName, extradata: extraData]

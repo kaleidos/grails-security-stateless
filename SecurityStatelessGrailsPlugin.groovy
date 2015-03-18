@@ -133,8 +133,13 @@ class SecurityStatelessGrailsPlugin {
 
         ctx.cryptoService.init "${conf.secretKey}"
 
+        if (conf.expiresStatusCode) {
+            ctx.statelessAuthenticationFailureHandler.init(conf.expiresStatusCode)
+        }
+
         if (conf.expirationTime) {
             ctx.statelessTokenValidator.init(new Integer(conf.expirationTime))
+            ctx.statelessTokenProvider.init(new Integer(conf.expirationTime))
         }
 
         if (!conf?.springsecurity || !conf?.springsecurity.integration) {

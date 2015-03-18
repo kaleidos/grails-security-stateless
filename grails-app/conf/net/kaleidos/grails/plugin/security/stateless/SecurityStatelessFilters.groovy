@@ -4,6 +4,7 @@ import groovy.json.JsonBuilder
 
 import net.kaleidos.grails.plugin.security.stateless.annotation.SecuredStateless
 import org.apache.commons.lang.WordUtils
+import net.kaleidos.grails.plugin.security.stateless.exception.StatelessValidationException
 
 class SecurityStatelessFilters {
 

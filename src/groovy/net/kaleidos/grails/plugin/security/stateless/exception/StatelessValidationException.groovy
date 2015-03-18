@@ -1,4 +1,4 @@
-package net.kaleidos.grails.plugin.security.stateless
+package net.kaleidos.grails.plugin.security.stateless.exception
 
 import groovy.transform.CompileStatic
 

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessAuthenticationToken
-import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
+import net.kaleidos.grails.plugin.security.stateless.exception.StatelessValidationException
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.authentication.AuthenticationProvider

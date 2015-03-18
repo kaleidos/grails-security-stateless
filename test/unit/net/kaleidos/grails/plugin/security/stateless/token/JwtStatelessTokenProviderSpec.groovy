@@ -5,7 +5,7 @@ import net.kaleidos.grails.plugin.security.stateless.CryptoService
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
+import net.kaleidos.grails.plugin.security.stateless.exception.StatelessValidationException
 import net.kaleidos.grails.plugin.security.stateless.provider.UserSaltProvider
 
 class JwtStatelessTokenProviderSpec extends Specification {
