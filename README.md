@@ -155,3 +155,22 @@ You can activate this format on your Config.groovy file as follows:
 ```
 grails.plugin.security.stateless.format = "JWT"
 ```
+
+#### Additional configuration
+##### Expiration time
+By default stateless tokens are configured so they don't expire. You can add an expiration time so your
+tokens expires after the indicated minutes.
+
+```
+grails.plugin.security.stateless.expirationTime = 1440 // 1 day
+```
+
+##### Expiration response code
+If you have configured the expiration time you can additionaly configure the response code that will be
+retrieved when a token expires.
+
+By default it's a ```401 Unauthorized``` status but you can choose another like 419 or 498
+
+```
+grails.plugin.security.stateless.expiresStatusCode = 401
+```
