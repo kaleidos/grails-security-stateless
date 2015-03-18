@@ -16,6 +16,7 @@ import org.springframework.util.Assert
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenProvider
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessAuthenticationToken
 import net.kaleidos.grails.plugin.security.stateless.token.StatelessTokenValidator
+import net.kaleidos.grails.plugin.security.stateless.exception.ExpiredTokenException
 
 
 @CompileStatic
@@ -42,7 +43,7 @@ class StatelessAuthenticationProvider implements AuthenticationProvider {
             UserDetails userDetails = userDetailsService.loadUserByUsername((String)securityStatelessMap.username, true)
 
             if (!statelessTokenValidator.validate(securityStatelessMap, userDetails)){
-                throw new BadCredentialsException("Token invalid")
+                throw new ExpiredTokenException("Token invalid")
             }
 
             log.debug "Authentication result: ${authenticationResult}"

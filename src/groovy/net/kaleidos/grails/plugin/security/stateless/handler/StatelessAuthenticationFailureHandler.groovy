@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
+import net.kaleidos.grails.plugin.security.stateless.exception.ExpiredTokenException
 
 /**
  * Handles authentication failure when BearerToken authentication is enabled.
@@ -19,6 +20,12 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 class StatelessAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
     protected final Logger log = LoggerFactory.getLogger(getClass().name)
+
+    Integer expiresStatusCode
+
+    void init(Integer expiresStatusCode) {
+        this.expiresStatusCode = expiresStatusCode
+    }
 
     /**
      * Sends the proper response code and headers, as defined by RFC6750.
@@ -30,7 +37,6 @@ class StatelessAuthenticationFailureHandler implements AuthenticationFailureHand
      * @throws ServletException
      */
     void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-
         String headerValue
 
         //response code is determined by authentication failure reason
@@ -44,7 +50,13 @@ class StatelessAuthenticationFailureHandler implements AuthenticationFailureHand
         }
 
         log.debug "Sending status code 401 and header WWW-Authenticate: ${headerValue}"
-        response.status = 401
+
+        if (expiresStatusCode != null && e instanceof ExpiredTokenException) {
+            response.status = expiresStatusCode
+        } else {
+            response.status = 401
+        }
+
         response.addHeader( 'WWW-Authenticate', headerValue )
     }
 }

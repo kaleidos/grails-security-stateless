@@ -13,13 +13,18 @@ import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
 
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
-import net.kaleidos.grails.plugin.security.stateless.StatelessValidationException
+import net.kaleidos.grails.plugin.security.stateless.exception.StatelessValidationException
 
 @Slf4j
 class JwtStatelessTokenProvider implements StatelessTokenProvider {
     private static final String BEARER = "Bearer "
 
     CryptoService cryptoService
+    Integer expirationTime
+
+    public void init(Integer expirationTime) {
+        this.expirationTime = expirationTime
+    }
 
     String generateToken(String userName, String salt=null, Map<String,String> extraData=[:]){
         def data = [username:userName]
@@ -34,6 +39,10 @@ class JwtStatelessTokenProvider implements StatelessTokenProvider {
 
         DateTimeFormatter formatter = ISODateTimeFormat.dateTime()
         data["issued_at"] = formatter.print(new DateTime())
+
+        if (expirationTime != null) {
+            data["expires_at"] = formatter.print(new DateTime().plusMinutes(expirationTime))
+        }
 
         String header = new JsonBuilder([alg:"HS256", typ: "JWT"])
         String payload = new JsonBuilder(data).toString()
