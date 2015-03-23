@@ -37,8 +37,9 @@ class SecurityStatelessFilters {
                 }
 
                 def authorization = request.getHeader("Authorization")
+                def map
                 try {
-                    def map = statelessTokenProvider.validateAndExtractToken(authorization)
+                    map = statelessTokenProvider.validateAndExtractToken(authorization)
                 } catch (StatelessValidationException e) {
                     Closure getJsonErrorBytes = { String error ->
                         Map errorMap = [message: error]
