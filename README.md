@@ -126,7 +126,7 @@ grails.plugin.security.stateless.springsecurity.login.passwordField = "password"
 ```
 
 
-The login will return 400 (BAD_REQUEST) if there isn't username or password, 401 (UNAUTHORIZED) for wrong username/password, or 200 (OK) for valid username/password. On 200, also return a JSON body with the token:
+The login will return 400 (BAD_REQUEST) if there isn't username or password, 401 (UNAUTHORIZED) for wrong username/password, or 201 (CREATED) for valid username/password. On 201, also return a JSON body with the token:
 
 ```groovy
 ["token":"eyJ1c2VybmFtZSI6InBhbGJhIn1fMUkwL3FIblpoQ2JYek5hVVVxSUw4TjAvNmk1Y3Qwb0IvamhQVFdUWGpNTT0="]
