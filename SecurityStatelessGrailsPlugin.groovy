@@ -104,7 +104,8 @@ class SecurityStatelessGrailsPlugin {
             endpointUrl = conf.springsecurity.login.endpointUrl
             usernameField = conf.springsecurity.login.usernameField?:"user"
             passwordField = conf.springsecurity.login.passwordField?:"password"
-            active = conf.springsecurity.login.active?:false
+            active = conf.springsecurity.login.active ?: false
+            shouldInvalidateAfterNewToken = conf.springsecurity.invalidateOnLogin ?: false
         }
 
         statelessInvalidateTokenFilter(StatelessInvalidateTokenFilter) {
