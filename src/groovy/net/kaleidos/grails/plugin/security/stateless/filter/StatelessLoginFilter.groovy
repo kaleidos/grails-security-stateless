@@ -26,6 +26,7 @@ import groovy.json.JsonSlurper
 class StatelessLoginFilter extends GenericFilterBean {
 
     boolean active
+    boolean shouldInvalidateAfterNewToken
 
     String usernameField
     String passwordField
@@ -90,6 +91,14 @@ class StatelessLoginFilter extends GenericFilterBean {
                 logger.debug "Authentication result: ${authenticationResult}"
 
                 String salt = userSaltProvider.getUserSalt(principal)
+
+                // When the config `newTokenInvalidate` is active we invalidate the previous token
+                // by updating the user's salt
+                if (shouldInvalidateAfterNewToken) {
+                    salt = UUID.randomUUID().toString() // New random salt
+                    userSaltProvider.updateUserSalt(principal, salt)
+                }
+
                 String tokenValue = statelessTokenProvider.generateToken(principal, salt, [:])
                 logger.debug "Generated token: ${tokenValue}"
 

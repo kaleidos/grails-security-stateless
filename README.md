@@ -132,6 +132,15 @@ The login will return 400 (BAD_REQUEST) if there isn't username or password, 401
 ["token":"eyJ1c2VybmFtZSI6InBhbGJhIn1fMUkwL3FIblpoQ2JYek5hVVVxSUw4TjAvNmk1Y3Qwb0IvamhQVFdUWGpNTT0="]
 ```
 
+##### Invalidation on log in
+
+In certain security scenarios we want to invalidate the user when another user logs into the platform. Activating
+the following flag the salt will be renewed invalidating all of previous tokens when the user logs in.
+
+```
+grails.plugin.security.stateless.springsecurity.invalidateOnLogin = true
+```
+
 #### Token format
 Currently the plugin supports two token formats:
 
@@ -174,3 +183,5 @@ By default it's a ```401 Unauthorized``` status but you can choose another like 
 ```
 grails.plugin.security.stateless.expiresStatusCode = 401
 ```
+
+

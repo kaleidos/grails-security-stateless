@@ -19,7 +19,7 @@ import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.SecurityFilterPosition
 
 class SecurityStatelessGrailsPlugin {
-    def version = "0.0.9"
+    def version = "0.2.0"
     def grailsVersion = "2.2 > *"
     def title = "Grails Spring Security Stateless Plugin"
     def description = 'Implements stateless authentication, with optional use of using Spring Security.'
@@ -104,7 +104,8 @@ class SecurityStatelessGrailsPlugin {
             endpointUrl = conf.springsecurity.login.endpointUrl
             usernameField = conf.springsecurity.login.usernameField?:"user"
             passwordField = conf.springsecurity.login.passwordField?:"password"
-            active = conf.springsecurity.login.active?:false
+            active = conf.springsecurity.login.active ?: false
+            shouldInvalidateAfterNewToken = conf.springsecurity.invalidateOnLogin ?: false
         }
 
         statelessInvalidateTokenFilter(StatelessInvalidateTokenFilter) {
