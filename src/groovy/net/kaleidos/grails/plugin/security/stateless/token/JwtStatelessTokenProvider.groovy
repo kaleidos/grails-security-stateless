@@ -13,6 +13,7 @@ import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
 
 import net.kaleidos.grails.plugin.security.stateless.CryptoService
+import net.kaleidos.grails.plugin.security.stateless.utils.UrlSafeBase64Utils
 import net.kaleidos.grails.plugin.security.stateless.exception.StatelessValidationException
 
 @Slf4j
@@ -46,9 +47,9 @@ class JwtStatelessTokenProvider implements StatelessTokenProvider {
 
         String header = new JsonBuilder([alg:"HS256", typ: "JWT"])
         String payload = new JsonBuilder(data).toString()
-        String signature = cryptoService.hash("${header.bytes.encodeBase64()}.${payload.bytes.encodeBase64()}")
+        String signature = cryptoService.hash("${UrlSafeBase64Utils.encode(header.bytes)}.${UrlSafeBase64Utils.encode(payload.bytes)}")
 
-        return "${header.bytes.encodeBase64()}.${payload.bytes.encodeBase64()}.${signature}"
+        return "${UrlSafeBase64Utils.encode(header.bytes)}.${UrlSafeBase64Utils.encode(payload.bytes)}.${signature}"
     }
 
     Map validateAndExtractToken(String token) {
@@ -77,7 +78,7 @@ class JwtStatelessTokenProvider implements StatelessTokenProvider {
 
         // Extract the payload
         def slurper = new JsonSlurper()
-        def payload = new String(payload64.decodeBase64())
+        def payload = new String(UrlSafeBase64Utils.decode(payload64))
 
         return (Map)slurper.parseText(payload)
     }
