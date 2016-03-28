@@ -18,6 +18,8 @@ import javax.crypto.spec.SecretKeySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import net.kaleidos.grails.plugin.security.stateless.utils.UrlSafeBase64Utils
+
 @CompileStatic
 class CryptoService {
 
@@ -94,7 +96,7 @@ class CryptoService {
             SecretKeySpec secretKeySpec = new SecretKeySpec(this.secret.getBytes("UTF-8"), "HmacSHA256")
             mac.init(secretKeySpec)
             byte[] digest = mac.doFinal(data.getBytes("UTF-8"))
-            return digest.encodeBase64().toString()
+            return UrlSafeBase64Utils.encode(digest)
         } catch (InvalidKeyException e) {
             throw new RuntimeException("Invalid key exception while converting to HMac SHA256")
         }
