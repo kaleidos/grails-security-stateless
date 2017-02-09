@@ -1,15 +1,12 @@
 package net.kaleidos.grails.plugin.security.stateless.provider
 
-import spock.lang.Specification
-
-import grails.test.mixin.TestMixin
-import grails.test.mixin.gorm.Domain
-import grails.test.mixin.hibernate.HibernateTestMixin
-
 import test.TestUser
+import spock.lang.Specification
+import grails.transaction.Rollback
+import grails.test.mixin.integration.Integration
 
-@Domain(TestUser)
-@TestMixin(HibernateTestMixin)
+@Rollback
+@Integration
 class UserSaltProviderSpec extends Specification {
     void "Retrieve user salt"() {
         setup:
