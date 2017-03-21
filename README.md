@@ -144,7 +144,7 @@ The login will return 400 (BAD_REQUEST) if there isn't username or password, 401
 Your client should add this token on the Authorization header in order to make subsequent authenticated calls to the server.
 
 ```
-Authorization: "Bearer: eyJ1c2VybmFtZSI6InBhbGJhIn1fMUkwL3FIblpoQ2JYek5hVVVxSUw4TjAvNmk1Y3Qwb0IvamhQVFdUWGpNTT0="
+Authorization: "Bearer eyJ1c2VybmFtZSI6InBhbGJhIn1fMUkwL3FIblpoQ2JYek5hVVVxSUw4TjAvNmk1Y3Qwb0IvamhQVFdUWGpNTT0="
 ```
 
 
