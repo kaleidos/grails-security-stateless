@@ -1,0 +1,6 @@
+grails:
+    plugin:
+      security:
+        stateless:
+          format: JWT
+          secretKey: anything
