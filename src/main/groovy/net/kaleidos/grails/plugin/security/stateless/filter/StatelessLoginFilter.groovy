@@ -21,6 +21,7 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.web.filter.GenericFilterBean
 
 import groovy.json.JsonSlurper
+import groovy.json.JsonException
 
 @CompileStatic
 class StatelessLoginFilter extends GenericFilterBean {
@@ -66,9 +67,14 @@ class StatelessLoginFilter extends GenericFilterBean {
             // Prevent error if there is no json body
             def text = httpServletRequest.reader.text
             if (text) {
-              def json = new JsonSlurper().parseText(text)
-              principal = json[usernameField]
-              credentials = json[passwordField]
+              try {
+                def json = new JsonSlurper().parseText(text)
+                principal = json[usernameField]
+                credentials = json[passwordField]
+              } catch (JsonException e){
+                principal = null
+                credentials = null
+              }
             }
         } else {
             principal = request.getParameter(usernameField)
